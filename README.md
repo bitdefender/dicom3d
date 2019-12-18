@@ -62,10 +62,10 @@ For example, to run the **basic.py** from **dicom3d**:
     a volumetric scan.
 
     It will create the sagittal, axial and coronal medical
-	sections form the selected volumetric scan.
+    sections form the selected volumetric scan.
 
-	The volumetric scan must a folder of .DCM files located
-	in the current working directory.
+    The volumetric scan must a folder of .DCM files located
+    in the current working directory.
 
     Each section image is plotted using matplotlib.
 
