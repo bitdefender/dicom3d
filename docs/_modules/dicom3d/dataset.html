@@ -1,0 +1,407 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dicom3d.dataset &#8212; dicom3d  documentation</title>
+    <link rel="stylesheet" href="../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">dicom3d  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for dicom3d.dataset</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># internal</span>
+<span class="kn">from</span> <span class="nn">.geometry</span> <span class="k">import</span> <span class="n">Point</span><span class="p">,</span> <span class="n">Plane</span><span class="p">,</span> <span class="n">Vector</span><span class="p">,</span> <span class="n">LocalCoordinateSystem</span>
+<span class="kn">from</span> <span class="nn">.data</span> <span class="k">import</span> <span class="n">walk_data</span>
+
+<div class="viewcode-block" id="Dataset"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset">[docs]</a><span class="k">class</span> <span class="nc">Dataset</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">		Wrapper class over the **pydicom.dataset.Dataset** class that provides </span>
+<span class="sd">		additional methods for manipulating a dataset, including a local coordinate</span>
+<span class="sd">		system to map pixel locations over world coordinates	</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">series</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">dataset</span>   <span class="o">=</span> <span class="n">dataset</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">series</span>    <span class="o">=</span> <span class="n">series</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">index</span>     <span class="o">=</span> <span class="n">index</span>
+
+		<span class="c1"># construct local coordinate system</span>
+		<span class="n">xx</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">xz</span><span class="p">,</span> <span class="n">yx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">yz</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">ImageOrientationPatient</span>
+		<span class="n">x_vector</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span><span class="n">xy</span><span class="p">,</span><span class="n">xz</span><span class="p">)</span>
+		<span class="n">y_vector</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="n">yx</span><span class="p">,</span><span class="n">yy</span><span class="p">,</span><span class="n">yz</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">LocalCoordinateSystem</span><span class="p">(</span>
+				<span class="n">dataset</span><span class="o">.</span><span class="n">ImagePositionPatient</span><span class="p">,</span>
+				<span class="n">x_vector</span><span class="p">,</span> <span class="n">y_vector</span><span class="p">,</span>
+				<span class="n">dataset</span><span class="o">.</span><span class="n">PixelSpacing</span>
+			<span class="p">)</span>
+
+		<span class="c1"># accurate Z location to use instead of SliceLocation </span>
+		<span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_ZLocation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_mm</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">_getZ</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ZLocation</span>
+	<span class="n">ZLocation</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_getZ</span><span class="p">)</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Property describing dataset&#39;s Z coordinate in world space in millimeters units </span>
+
+<span class="sd">	Attention:</span>
+<span class="sd">		According to DICOM standard the *SliceLocation* attrbute is defined as: </span>
+<span class="sd">		</span>
+<span class="sd">		**The relative position of the image plane expressed in mm. This information </span>
+<span class="sd">		is relative to an unspecified implementation specific reference point.**</span>
+
+<span class="sd">		This makes *SliceLocation* attribute unreliable for ordering or finding datasets</span>
+<span class="sd">		in world space, as it&#39;s possible to indicate a Z coordinate not related to the one</span>
+<span class="sd">		obtained via dataset&#39;s *LocalCoordinateSystem*, thus not related to the *ImagePositionPatient*</span>
+<span class="sd">		standard attribute.</span>
+
+<span class="sd">	Returns:</span>
+<span class="sd">		float: Z coordinate</span>
+<span class="sd">	</span>
+<span class="sd">	Examples:</span>
+<span class="sd">		&gt;&gt;&gt; # will return pydicom&#39;s SliceLocation attribute value</span>
+<span class="sd">		&gt;&gt;&gt; series.first().SliceLocation </span>
+<span class="sd">		&quot;205.7&quot;</span>
+<span class="sd">		&gt;&gt;&gt; # will return dicom3d.Dataset&#39;s attribute</span>
+<span class="sd">		&gt;&gt;&gt; series.first().ZLocation </span>
+<span class="sd">		-205.7</span>
+<span class="sd">		&gt;&gt;&gt; # notice the dataset&#39;s value of Z coordinate for the center point</span>
+<span class="sd">		&gt;&gt;&gt; # which is obtained via &#39;ImagePositionPatient&#39; attribute</span>
+<span class="sd">		&gt;&gt;&gt; series.first().center() </span>
+<span class="sd">		x:-2.65 y:-184.74 z:-205.70</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Dataset.to_mm"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.to_mm">[docs]</a>	<span class="k">def</span> <span class="nf">to_mm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Converts the local pixel coordinates to world coordinates measured </span>
+<span class="sd">		in units of millimeters </span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			x (int): value on the X axis</span>
+<span class="sd">			y (int): value on the Y axis</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Point: transformed three-dimensional point representing world coordinates </span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; dataset = series.first()</span>
+<span class="sd">			&gt;&gt;&gt; pt1 = dataset.to_mm(10,10)   # world coords for pixel at ( 10, 10)</span>
+<span class="sd">			&gt;&gt;&gt; pt2 = dataset.to_mm(100,100) # world coords for pixel at (100,100)</span>
+<span class="sd">			&gt;&gt;&gt; print(&quot;Distance from pixel (10,10) to (100,100) is %.1f mm&quot; % (</span>
+<span class="sd">					pt1.distance(pt2)))</span>
+<span class="sd">			Distance from pixel (10,10) to (100,100) is 89.2 mm</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">to_world</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dataset.to_pixel"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.to_pixel">[docs]</a>	<span class="k">def</span> <span class="nf">to_pixel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Converts the given point from world coordinates in millimeter units, </span>
+<span class="sd">		to local coordinates, in pixels. </span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			coords (tuple, Point): point describing world coordinates</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			tuple: transformed two-dimensional point representing local coordinates</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">to_local</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+		<span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Dataset.center"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.center">[docs]</a>	<span class="k">def</span> <span class="nf">center</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns the center of the dataset in world coordinates measured in </span>
+<span class="sd">		millimeter units</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Point: center of the dataset</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Rows</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Columns</span><span class="o">/</span><span class="mi">2</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_mm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dataset.plane"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.plane">[docs]</a>	<span class="k">def</span> <span class="nf">plane</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Constructs a plane corresponding to this dataset</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Plane: plane object</span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; # plane equation for first dataset </span>
+<span class="sd">			&gt;&gt;&gt; series.first().plane()</span>
+<span class="sd">			0.00X + 0.00Y + 1.00Z = -296.70</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">ox</span><span class="p">,</span><span class="n">oy</span><span class="p">,</span><span class="n">oz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">center</span><span class="p">()</span>
+		<span class="k">return</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_coords</span><span class="p">((</span><span class="n">ox</span><span class="p">,</span><span class="n">oy</span><span class="p">,</span><span class="n">oz</span><span class="p">),(</span><span class="n">ox</span><span class="p">,</span><span class="n">oy</span><span class="p">,</span><span class="n">oz</span><span class="o">+</span><span class="mf">1.0</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Dataset.topleft"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.topleft">[docs]</a>	<span class="k">def</span> <span class="nf">topleft</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns the corresponding world coordinates for the local (0,0) point</span>
+<span class="sd">	</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Point: top-left point in world coordinates</span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; first = series.first()</span>
+<span class="sd">			&gt;&gt;&gt; first.topleft()</span>
+<span class="sd">			x:-182.15 y:-364.24 z:-296.70</span>
+<span class="sd">			&gt;&gt;&gt; # one way of getting dataset&#39;s width in millimeters</span>
+<span class="sd">			&gt;&gt;&gt; first.topleft().distance(first.topright())</span>
+<span class="sd">			358.298828125</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_mm</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dataset.topright"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.topright">[docs]</a>	<span class="k">def</span> <span class="nf">topright</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns the corresponding world coordinates for the local (Columns-1,0) point</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Point: top-right point in world coordinates</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_mm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Columns</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dataset.bottomleft"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.bottomleft">[docs]</a>	<span class="k">def</span> <span class="nf">bottomleft</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns the corresponding world coordinates for the local (0, Rows-1) point</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Point: bottom-left point in world coordinates</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_mm</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Rows</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dataset.bottomright"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.bottomright">[docs]</a>	<span class="k">def</span> <span class="nf">bottomright</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns the corresponding world coordinates for the local </span>
+<span class="sd">		(Columns-1, Rows-1) point</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Point: bottom-right point in world coordinates</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_mm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Columns</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Rows</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dataset.prev"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.prev">[docs]</a>	<span class="k">def</span> <span class="nf">prev</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns the previous dataset from the series it belongs to, or None </span>
+<span class="sd">		if first</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Dataset: previous dataset object</span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; # one way of navigating backwards through datasets</span>
+<span class="sd">			&gt;&gt;&gt; dataset = series.last()</span>
+<span class="sd">			&gt;&gt;&gt; while(dataset is not None):</span>
+<span class="sd">			&gt;&gt;&gt;		dataset = dataset.prev()</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">series</span><span class="o">.</span><span class="n">at_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dataset.next"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.next">[docs]</a>	<span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns the next dataset from the series it belongs to, or None </span>
+<span class="sd">		if last</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Dataset: next dataset object</span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; # one way of navigating forward through datasets</span>
+<span class="sd">			&gt;&gt;&gt; dataset = series.first()</span>
+<span class="sd">			&gt;&gt;&gt; while(dataset is not None):</span>
+<span class="sd">			&gt;&gt;&gt;		dataset = dataset.next()</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">series</span><span class="o">.</span><span class="n">last</span><span class="p">():</span> <span class="k">return</span> <span class="kc">None</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">series</span><span class="o">.</span><span class="n">at_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dataset.intersects_xy"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.intersects_xy">[docs]</a>	<span class="k">def</span> <span class="nf">intersects_xy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xy</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; checks if this dataset intersects X,Y world coordinates &quot;&quot;&quot;</span>
+		<span class="n">xs</span><span class="p">,</span><span class="n">ys</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">topleft</span><span class="p">()</span>
+		<span class="n">xe</span><span class="p">,</span><span class="n">ye</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bottomright</span><span class="p">()</span>
+		<span class="n">x</span><span class="p">,</span><span class="n">y</span>     <span class="o">=</span> <span class="n">xy</span>
+
+		<span class="k">return</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">xe</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">xs</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="n">ye</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="n">ys</span></div>
+
+<div class="viewcode-block" id="Dataset.intersects_z"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.intersects_z">[docs]</a>	<span class="k">def</span> <span class="nf">intersects_z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_loc</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; checks if this dataset intersects a given Z coordinate &quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">z_loc</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ZLocation</span> <span class="ow">and</span> <span class="n">z_loc</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ZLocation</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">SliceThickness</span></div>
+
+<div class="viewcode-block" id="Dataset.intersects_point"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.intersects_point">[docs]</a>	<span class="k">def</span> <span class="nf">intersects_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Verifies if this dataset intersects a given point in world coordinates</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			pt (Point, tuple): point or tuple describing world coordinates</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			bool: True point intersects dataset, False otherwise</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="n">pt</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">intersects_z</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">intersects_xy</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Dataset.intersects"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.intersects">[docs]</a>	<span class="k">def</span> <span class="nf">intersects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">what</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">		Checks if the given parameter intersects the dataset</span>
+
+<span class="sd">		The first positonal parameter, can be of type:</span>
+<span class="sd">			- float - which is considered to be a Z coordinate</span>
+<span class="sd">			- tuple - which is considered to be a (x,y) coordinate</span>
+<span class="sd">			- plane - plane object</span>
+
+<span class="sd">		Args:</span>
+<span class="sd">			what (float, Point, tuple, Plane): object to test intersection against</span>
+
+<span class="sd">		Returns:</span>
+<span class="sd">			bool: True if intersection was detected or False otherwise</span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; # check intersection with a Z world coordinate</span>
+<span class="sd">			&gt;&gt;&gt; dataset.intersects(10.0)</span>
+<span class="sd">			&gt;&gt;&gt; # check intersection with (X,Y) world coordinate</span>
+<span class="sd">			&gt;&gt;&gt; dataset.intersects((10.0,30.0))</span>
+<span class="sd">			&gt;&gt;&gt; # check intersection with a fully-defined point</span>
+<span class="sd">			&gt;&gt;&gt; dataset.intersects((10.0, 30.0, 10.0))</span>
+<span class="sd">			&gt;&gt;&gt; dataset.intersects(dicom3d.Point(10,30,10)) # same effect</span>
+<span class="sd">			&gt;&gt;&gt; # check intersection with a given plane</span>
+<span class="sd">			&gt;&gt;&gt; dataset.intersects(dicom3d.Plane.from_axes(&quot;xy&quot;))</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">what</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">:</span> 
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">intersects_z</span><span class="p">(</span><span class="n">what</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">what</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span> 
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">what</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">intersects_xy</span><span class="p">(</span><span class="n">what</span><span class="p">)</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">what</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">intersects_point</span><span class="p">(</span><span class="n">what</span><span class="p">)</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid point&quot;</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">what</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Point</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">intersects_point</span><span class="p">(</span><span class="n">what</span><span class="p">)</span>	
+
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">what</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Plane</span><span class="p">:</span> 
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane_intersection</span><span class="p">(</span><span class="n">what</span><span class="p">)</span> <span class="o">!=</span> <span class="kc">None</span>
+
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid argument for intersection&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Dataset.plane_intersection"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Dataset.plane_intersection">[docs]</a>	<span class="k">def</span> <span class="nf">plane_intersection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plane</span><span class="p">):</span>
+		
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Verifies intersection of this dataset with a given plane and returns</span>
+<span class="sd">		a list of two far-most points on the sides of the dataset, where it </span>
+<span class="sd">		touches the plane.</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			[list]: list of two **dicom3d.Point** objects</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="n">p</span> <span class="o">=</span> <span class="n">plane</span> <span class="c1"># shortcut</span>
+
+		<span class="c1"># get world coordinates for this dataset</span>
+		<span class="n">zd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ZLocation</span>
+		<span class="n">oxs</span><span class="p">,</span><span class="n">oys</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">topleft</span><span class="p">()</span>
+		<span class="n">oxe</span><span class="p">,</span><span class="n">oye</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bottomright</span><span class="p">()</span>
+
+		<span class="c1"># get extreme points (xs,ys) -&gt; (xe,ye)</span>
+		<span class="n">xs</span><span class="p">,</span> <span class="n">xe</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">oxs</span><span class="p">,</span> <span class="n">oxe</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">oxs</span><span class="p">,</span> <span class="n">oxe</span><span class="p">)</span>
+		<span class="n">ys</span><span class="p">,</span> <span class="n">ye</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">oys</span><span class="p">,</span> <span class="n">oye</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">oys</span><span class="p">,</span> <span class="n">oye</span><span class="p">)</span>
+
+		<span class="n">int_points</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">int_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">p</span><span class="o">.</span><span class="n">resolve</span><span class="p">((</span><span class="n">oxs</span><span class="p">,</span><span class="kc">None</span><span class="p">,</span><span class="n">zd</span><span class="p">))</span> <span class="p">)</span>
+		<span class="n">int_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">p</span><span class="o">.</span><span class="n">resolve</span><span class="p">((</span><span class="kc">None</span><span class="p">,</span><span class="n">oys</span><span class="p">,</span><span class="n">zd</span><span class="p">))</span> <span class="p">)</span>
+		<span class="n">int_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">p</span><span class="o">.</span><span class="n">resolve</span><span class="p">((</span><span class="n">oxe</span><span class="p">,</span><span class="kc">None</span><span class="p">,</span><span class="n">zd</span><span class="p">))</span> <span class="p">)</span>
+		<span class="n">int_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">p</span><span class="o">.</span><span class="n">resolve</span><span class="p">((</span><span class="kc">None</span><span class="p">,</span><span class="n">oye</span><span class="p">,</span><span class="n">zd</span><span class="p">))</span> <span class="p">)</span>
+
+		<span class="c1"># clear unresolved, outbound or identical points</span>
+		<span class="n">int_final</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+		<span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">int_points</span><span class="p">:</span>
+			<span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">pt</span>
+			<span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> \
+			   <span class="n">x</span> <span class="o">&lt;</span> <span class="n">xs</span> <span class="ow">or</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">xe</span> <span class="ow">or</span> \
+			   <span class="n">y</span> <span class="o">&lt;</span> <span class="n">ys</span> <span class="ow">or</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">ye</span><span class="p">:</span>
+				<span class="k">continue</span> <span class="c1"># out of slice boundaries</span>
+
+			<span class="n">int_final</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">int_final</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+			<span class="k">return</span> <span class="kc">None</span>
+
+		<span class="p">(</span><span class="n">xe</span><span class="p">,</span><span class="n">ye</span><span class="p">),(</span><span class="n">xs</span><span class="p">,</span><span class="n">ys</span><span class="p">)</span> <span class="o">=</span> <span class="n">int_final</span>
+		<span class="k">return</span> <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span><span class="n">ys</span><span class="p">,</span><span class="n">zd</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="n">xe</span><span class="p">,</span><span class="n">ye</span><span class="p">,</span><span class="n">zd</span><span class="p">)]</span></div>
+
+
+	<span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; redirect other atribute requests to the pydicom class &quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">dicom3d  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Bitdefender LLC.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1999 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dicom3d package &#8212; dicom3d  documentation</title>
+    <link rel="stylesheet" href="../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">dicom3d  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">dicom3d package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-dicom3d.dicomdir">dicom3d.dicomdir module</a></li>
+<li><a class="reference internal" href="#module-dicom3d.plotter">dicom3d.plotter module</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/dicom3d.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-dicom3d">
+<span id="dicom3d-package"></span><h1>dicom3d package<a class="headerlink" href="#module-dicom3d" title="Permalink to this headline">¶</a></h1>
+<p>Root <strong>dicom3d</strong> module implementing <strong>Section</strong>, <strong>Series</strong>, <strong>Dataset</strong> class objects</p>
+<dl class="class">
+<dt id="dicom3d.Section">
+<em class="property">class </em><code class="sig-prename descclassname">dicom3d.</code><code class="sig-name descname">Section</code><span class="sig-paren">(</span><em class="sig-param">series</em>, <em class="sig-param">coordinateMapping</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/section.html#Section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class manages a section of the volumetrical scan, able to produce
+a planar image of the datasets intersecting it</p>
+<p class="rubric">Examples</p>
+<dl>
+<dt>To build a section, you can use:</dt><dd><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">section</span> <span class="o">=</span> <span class="n">Section</span><span class="o">.</span><span class="n">from_plane</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">origin</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt>To get the image corresponding wiith this section:</dt><dd><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">section</span><span class="o">.</span><span class="n">image</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+<dt>To use the local coordinate system:</dt><dd><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">point</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">to_mm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">to_pixel</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dicom3d.Section.dpi">
+<em class="property">property </em><code class="sig-name descname">dpi</code><a class="headerlink" href="#dicom3d.Section.dpi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dots per inch property. Similar with <strong>pixel_density</strong> propery, except that
+it calculates the density per square inch, not per millimeter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a <em>tuple</em> of floats representing the density on X and Y axis</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Section.from_dataset">
+<em class="property">static </em><code class="sig-name descname">from_dataset</code><span class="sig-paren">(</span><em class="sig-param">dataset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/section.html#Section.from_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Section.from_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a section from a single DICOM dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference internal" href="#dicom3d.Dataset" title="dicom3d.Dataset"><em>Dataset</em></a>) – planar DICOM dataset</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>origin</em>) – world coordinates of section center</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>constructed section object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Section" title="dicom3d.Section">Section</a></p>
+</dd>
+</dl>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This function will construct a pseudo-series which will contain
+a single dataset. The pseudo-series can be accesses via <em>series</em>
+class member</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">section</span> <span class="o">=</span> <span class="n">dicom3d</span><span class="o">.</span><span class="n">Section</span><span class="o">.</span><span class="n">from_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">series</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">series</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">series</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">series</span><span class="o">.</span><span class="n">first</span><span class="p">()</span> <span class="o">==</span> <span class="n">series</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Section.from_plane">
+<em class="property">static </em><code class="sig-name descname">from_plane</code><span class="sig-paren">(</span><em class="sig-param">series</em>, <em class="sig-param">plane</em>, <em class="sig-param">origin</em>, <em class="sig-param">orientation=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/section.html#Section.from_plane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Section.from_plane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a section from a <strong>dicom3d.Plane</strong> and an origin point that will act
+as section’s center</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>series</strong> (<a class="reference internal" href="#dicom3d.Series" title="dicom3d.Series"><em>Series</em></a>) – a <strong>dicom3d.Series</strong> object</p></li>
+<li><p><strong>plane</strong> (<a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane"><em>Plane</em></a>) – plane definition for this section</p></li>
+<li><p><strong>origin</strong> (<a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a><em>, </em><em>tuple</em>) – section’s center point in world coordinates</p></li>
+<li><p><strong>orientation</strong> (<em>bool</em><em>, </em><em>optional</em>) – Fixes orientation. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>Exception</strong> – when intersection errors are detected</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>constructed section object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Section" title="dicom3d.Section">Section</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Section.image">
+<code class="sig-name descname">image</code><span class="sig-paren">(</span><em class="sig-param">size</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/section.html#Section.image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Section.image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs the image corresponding to this section and return an numpy array,
+describing the image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> (<em>tuple</em>) – tuple of float or integer width,height values (see notes)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – when input of unknown type is received</p></li>
+<li><p><strong>Exception</strong> – on intersection errors</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the <strong>size</strong> argument is a tuple of integers, then it will be treated as
+width and height in pixels of the resulting image.
+If it’s a tuple of floats, then it will be considered to be the width and height
+in millimeters for each for the area covered by the resulting image.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>numpy array of the constructed image</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Section.pixel_density">
+<em class="property">property </em><code class="sig-name descname">pixel_density</code><a class="headerlink" href="#dicom3d.Section.pixel_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>It is the opposite of the <strong>pixel_spacing</strong> property and describes
+how many pixels are per square millimeter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a <em>tuple</em> of floats representing the density on X and Y axis</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Section.pixel_spacing">
+<em class="property">property </em><code class="sig-name descname">pixel_spacing</code><a class="headerlink" href="#dicom3d.Section.pixel_spacing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property describing the distance in millimeters between section’s pixels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a <em>tuple</em> of floats describing the X and Y spacing</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Section.to_mm">
+<code class="sig-name descname">to_mm</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/section.html#Section.to_mm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Section.to_mm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the local pixel coordinates to world coordinates in millimeter units</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>int</em>) – value on the X axis</p></li>
+<li><p><strong>y</strong> (<em>int</em>) – value on the Y axis</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>transformed three-dimensional point representing world coordinates</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point">Point</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Section.to_pixel">
+<code class="sig-name descname">to_pixel</code><span class="sig-paren">(</span><em class="sig-param">coords</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/section.html#Section.to_pixel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Section.to_pixel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the given point from world coordinates in millimeter units,
+to local coordinates, in pixels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coords</strong> (<em>tuple</em><em>, </em><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a>) – point describing world coordinates</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>transformed two-dimensional point representing local coordinates</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dicom3d.Series">
+<em class="property">class </em><code class="sig-prename descclassname">dicom3d.</code><code class="sig-name descname">Series</code><span class="sig-paren">(</span><em class="sig-param">datasets</em>, <em class="sig-param">check_homogeneity=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/series.html#Series"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class responsible for managing a volumetric scan, comprised by a list of successive datasets</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>When constructed, this class performs the following operations</dt><dd><ul class="simple">
+<li><p>sorts the given datasets by <em>ZLocation</em></p></li>
+<li><p>wraps the datasets in <strong>dicom3d.Dataset</strong> class</p></li>
+<li><p>checks the series for spacial homogeneity</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Homogeneity check is required by this class to make sure the assumptions
+it makes over the volumetric scan, are correct. These assumptions are related
+to space contiguity between datasets and consistent density and size among
+datasets</p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<dl class="simple">
+<dt>A series is homogeneous if:</dt><dd><ul class="simple">
+<li><p>all datasets are continuous on the Z axis (no gaps)</p></li>
+<li><dl class="simple">
+<dt>each dataset has identical values for these attributes</dt><dd><ul>
+<li><p>SliceThickness</p></li>
+<li><p>PixelSpacing</p></li>
+<li><p>Rows</p></li>
+<li><p>Columns</p></li>
+<li><p>ImagePositionPatient</p></li>
+<li><p>ImageOrientationPatient</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</div>
+<dl class="method">
+<dt id="dicom3d.Series.at">
+<code class="sig-name descname">at</code><span class="sig-paren">(</span><em class="sig-param">where</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/series.html#Series.at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Series.at" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a wrapper function for ease of use over <strong>at_index</strong> and
+<strong>at_z</strong> functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>where</strong> (<em>int</em><em>, </em><em>float</em><em>, </em><em>tuple</em><em>, </em><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a>) – if <strong>where</strong> is an integer is treated like an index,
+else is considered to be a Z location</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the corresponding <strong>dicom3d.Dataset</strong> object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Dataset" title="dicom3d.Dataset">Dataset</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="c1"># gets dataset at 0.1 Z coordinate</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>   <span class="c1"># gets dataset at index 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span> <span class="c1"># gets dataset at 2.0 Z coordinate</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Series.at_index">
+<code class="sig-name descname">at_index</code><span class="sig-paren">(</span><em class="sig-param">index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/series.html#Series.at_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Series.at_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the dataset at the corresponding index or None if index is out of bounds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>int</em>) – dataset index in series</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the <strong>dicom3d.Dataset</strong> object at <strong>index</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Dataset" title="dicom3d.Dataset">Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Series.at_z">
+<code class="sig-name descname">at_z</code><span class="sig-paren">(</span><em class="sig-param">z_loc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/series.html#Series.at_z"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Series.at_z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the dataset that intersects the given Z location in world coordinates</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If homogeneity test was disabled for this series, this function will raise
+an exception</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>z_loc</strong> (<em>float</em>) – value describing location on the Z axis</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the corresponding <strong>dicom3d.Dataset</strong> object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Dataset" title="dicom3d.Dataset">Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Series.cache">
+<code class="sig-name descname">cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/series.html#Series.cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Series.cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a three-dimensional numpy array from all pixel data from datasets.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Reserved for future use!</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>numpy array of the pixel data</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Series.count">
+<code class="sig-name descname">count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/series.html#Series.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Series.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of datasets</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>legnth of datasets list</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Series.find_dataset">
+<code class="sig-name descname">find_dataset</code><span class="sig-paren">(</span><em class="sig-param">z_loc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/series.html#Series.find_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Series.find_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Despite <strong>Series.at_z</strong> method, this one doesn’t require homogenuity test to be ran
+If will effectively search though the list to find the corresponding dataset, instead
+of calculating the index based on Z-bounds and dataset thickness.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>z_loc</strong> (<em>float</em>) – value describing location on the Z axiss</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>index of the corresponding dataset or -1 if not found</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Series.first">
+<code class="sig-name descname">first</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/series.html#Series.first"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Series.first" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrives the first dataset from series. The first dataset is located at the bottom
+of the Z segment, therefore it will have the lowest Z coordinate value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a <strong>dicom3d.Dataset</strong> object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Dataset" title="dicom3d.Dataset">Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Series.fix_z_duplicates">
+<em class="property">static </em><code class="sig-name descname">fix_z_duplicates</code><span class="sig-paren">(</span><em class="sig-param">datasets</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/series.html#Series.fix_z_duplicates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Series.fix_z_duplicates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempts to curate a list of datasets that has datasets duplicated on the Z axis</p>
+<dl class="simple">
+<dt>Args:s</dt><dd><p>datasets (list): list of pydicom.dataset.Dataset objects</p>
+</dd>
+</dl>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This code is experimental and is used to fix some series that fail the
+homogeneity test.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Series.from_dataset">
+<em class="property">static </em><code class="sig-name descname">from_dataset</code><span class="sig-paren">(</span><em class="sig-param">dataset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/series.html#Series.from_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Series.from_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a series from a single dataset. Helpful if you want to build
+section images from planar datasets</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<a class="reference internal" href="#dicom3d.Dataset" title="dicom3d.Dataset"><em>Dataset</em></a>) – planar DICOM dataset</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulted series object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Series" title="dicom3d.Series">Series</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Series.from_directory">
+<em class="property">static </em><code class="sig-name descname">from_directory</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">pattern='*.dcm'</em>, <em class="sig-param">check_homogeneity=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/series.html#Series.from_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Series.from_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a series from a directory of DICOM files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – path to the directory continaing the DICOM files</p></li>
+<li><p><strong>pattern</strong> (<em>str</em><em>, </em><em>optional</em>) – Wildcard pattern of DIICOM files, default is “*.dcm”</p></li>
+<li><p><strong>check_homogeneity</strong> (<em>bool</em><em>, </em><em>optional</em>) – Homogeneity test, default is <strong>True</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a <strong>dicom3d.Series</strong> object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>[<a class="reference internal" href="#dicom3d.Series" title="dicom3d.Series">Series</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Series.last">
+<code class="sig-name descname">last</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/series.html#Series.last"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Series.last" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrives the last dataset from series. The last dataset is located at the top
+of the Z segment, therefore it will have the highest Z coordinate value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a <strong>dicom3d.Dataset</strong> object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Dataset" title="dicom3d.Dataset">Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Series.middle">
+<code class="sig-name descname">middle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/series.html#Series.middle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Series.middle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrives the dataset from series that is on the middle of the Z segment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a <strong>dicom3d.Dataset</strong> object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Dataset" title="dicom3d.Dataset">Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Series.z_bounds">
+<code class="sig-name descname">z_bounds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/series.html#Series.z_bounds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Series.z_bounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a tuple representing the world Z coordinates of the volumetric scan,
+including the top dataset and its thickness.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If homogeneity test was disabled for this series, this function will raise
+an exception</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a tuple of float values representing the Z bounds</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">z_start</span><span class="p">,</span> <span class="n">z_end</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">z_bounds</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Series starts from </span><span class="si">%.1f</span><span class="s2"> to </span><span class="si">%.1f</span><span class="s2"> mm on the Z axis&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">z_start</span><span class="p">,</span> <span class="n">z_end</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dicom3d.Dataset">
+<em class="property">class </em><code class="sig-prename descclassname">dicom3d.</code><code class="sig-name descname">Dataset</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">series</em>, <em class="sig-param">index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper class over the <strong>pydicom.dataset.Dataset</strong> class that provides
+additional methods for manipulating a dataset, including a local coordinate
+system to map pixel locations over world coordinates</p>
+<dl class="method">
+<dt id="dicom3d.Dataset.ZLocation">
+<em class="property">property </em><code class="sig-name descname">ZLocation</code><a class="headerlink" href="#dicom3d.Dataset.ZLocation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property describing dataset’s Z coordinate in world space in millimeters units</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>According to DICOM standard the <em>SliceLocation</em> attrbute is defined as:</p>
+<p><strong>The relative position of the image plane expressed in mm. This information
+is relative to an unspecified implementation specific reference point.</strong></p>
+<p>This makes <em>SliceLocation</em> attribute unreliable for ordering or finding datasets
+in world space, as it’s possible to indicate a Z coordinate not related to the one
+obtained via dataset’s <em>LocalCoordinateSystem</em>, thus not related to the <em>ImagePositionPatient</em>
+standard attribute.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Z coordinate</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># will return pydicom&#39;s SliceLocation attribute value</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">series</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">SliceLocation</span>
+<span class="go">&quot;205.7&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># will return dicom3d.Dataset&#39;s attribute</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">series</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">ZLocation</span>
+<span class="go">-205.7</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># notice the dataset&#39;s value of Z coordinate for the center point</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># which is obtained via &#39;ImagePositionPatient&#39; attribute</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">series</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">center</span><span class="p">()</span>
+<span class="go">x:-2.65 y:-184.74 z:-205.70</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.bottomleft">
+<code class="sig-name descname">bottomleft</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.bottomleft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.bottomleft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the corresponding world coordinates for the local (0, Rows-1) point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>bottom-left point in world coordinates</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point">Point</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.bottomright">
+<code class="sig-name descname">bottomright</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.bottomright"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.bottomright" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the corresponding world coordinates for the local
+(Columns-1, Rows-1) point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>bottom-right point in world coordinates</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point">Point</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.center">
+<code class="sig-name descname">center</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.center"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.center" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the center of the dataset in world coordinates measured in
+millimeter units</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>center of the dataset</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point">Point</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.intersects">
+<code class="sig-name descname">intersects</code><span class="sig-paren">(</span><em class="sig-param">what</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.intersects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.intersects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the given parameter intersects the dataset</p>
+<dl class="simple">
+<dt>The first positonal parameter, can be of type:</dt><dd><ul class="simple">
+<li><p>float - which is considered to be a Z coordinate</p></li>
+<li><p>tuple - which is considered to be a (x,y) coordinate</p></li>
+<li><p>plane - plane object</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>what</strong> (<em>float</em><em>, </em><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a><em>, </em><em>tuple</em><em>, </em><a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane"><em>Plane</em></a>) – object to test intersection against</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if intersection was detected or False otherwise</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># check intersection with a Z world coordinate</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># check intersection with (X,Y) world coordinate</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">intersects</span><span class="p">((</span><span class="mf">10.0</span><span class="p">,</span><span class="mf">30.0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># check intersection with a fully-defined point</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">intersects</span><span class="p">((</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="n">dicom3d</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span> <span class="c1"># same effect</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># check intersection with a given plane</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="n">dicom3d</span><span class="o">.</span><span class="n">Plane</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="s2">&quot;xy&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.intersects_point">
+<code class="sig-name descname">intersects_point</code><span class="sig-paren">(</span><em class="sig-param">pt</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.intersects_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.intersects_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verifies if this dataset intersects a given point in world coordinates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pt</strong> (<a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a><em>, </em><em>tuple</em>) – point or tuple describing world coordinates</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True point intersects dataset, False otherwise</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.intersects_xy">
+<code class="sig-name descname">intersects_xy</code><span class="sig-paren">(</span><em class="sig-param">xy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.intersects_xy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.intersects_xy" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks if this dataset intersects X,Y world coordinates</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.intersects_z">
+<code class="sig-name descname">intersects_z</code><span class="sig-paren">(</span><em class="sig-param">z_loc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.intersects_z"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.intersects_z" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks if this dataset intersects a given Z coordinate</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.next">
+<code class="sig-name descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the next dataset from the series it belongs to, or None
+if last</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>next dataset object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Dataset" title="dicom3d.Dataset">Dataset</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># one way of navigating forward through datasets</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">while</span><span class="p">(</span><span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.plane">
+<code class="sig-name descname">plane</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.plane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.plane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a plane corresponding to this dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>plane object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane">Plane</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># plane equation for first dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">series</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">plane</span><span class="p">()</span>
+<span class="go">0.00X + 0.00Y + 1.00Z = -296.70</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.plane_intersection">
+<code class="sig-name descname">plane_intersection</code><span class="sig-paren">(</span><em class="sig-param">plane</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.plane_intersection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.plane_intersection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verifies intersection of this dataset with a given plane and returns
+a list of two far-most points on the sides of the dataset, where it
+touches the plane.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of two <strong>dicom3d.Point</strong> objects</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>[list]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.prev">
+<code class="sig-name descname">prev</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.prev"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.prev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the previous dataset from the series it belongs to, or None
+if first</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>previous dataset object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Dataset" title="dicom3d.Dataset">Dataset</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># one way of navigating backwards through datasets</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">while</span><span class="p">(</span><span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">prev</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.to_mm">
+<code class="sig-name descname">to_mm</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.to_mm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.to_mm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the local pixel coordinates to world coordinates measured
+in units of millimeters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>int</em>) – value on the X axis</p></li>
+<li><p><strong>y</strong> (<em>int</em>) – value on the Y axis</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>transformed three-dimensional point representing world coordinates</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point">Point</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pt1</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">to_mm</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>   <span class="c1"># world coords for pixel at ( 10, 10)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pt2</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">to_mm</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span> <span class="c1"># world coords for pixel at (100,100)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Distance from pixel (10,10) to (100,100) is </span><span class="si">%.1f</span><span class="s2"> mm&quot;</span> <span class="o">%</span> <span class="p">(</span>
+<span class="go">                pt1.distance(pt2)))</span>
+<span class="go">Distance from pixel (10,10) to (100,100) is 89.2 mm</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.to_pixel">
+<code class="sig-name descname">to_pixel</code><span class="sig-paren">(</span><em class="sig-param">coords</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.to_pixel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.to_pixel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the given point from world coordinates in millimeter units,
+to local coordinates, in pixels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coords</strong> (<em>tuple</em><em>, </em><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a>) – point describing world coordinates</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>transformed two-dimensional point representing local coordinates</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.topleft">
+<code class="sig-name descname">topleft</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.topleft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.topleft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the corresponding world coordinates for the local (0,0) point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>top-left point in world coordinates</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point">Point</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">first</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">first</span><span class="o">.</span><span class="n">topleft</span><span class="p">()</span>
+<span class="go">x:-182.15 y:-364.24 z:-296.70</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># one way of getting dataset&#39;s width in millimeters</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">first</span><span class="o">.</span><span class="n">topleft</span><span class="p">()</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">first</span><span class="o">.</span><span class="n">topright</span><span class="p">())</span>
+<span class="go">358.298828125</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Dataset.topright">
+<code class="sig-name descname">topright</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dataset.html#Dataset.topright"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Dataset.topright" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the corresponding world coordinates for the local (Columns-1,0) point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>top-right point in world coordinates</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point">Point</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dicom3d.Plane">
+<em class="property">class </em><code class="sig-prename descclassname">dicom3d.</code><code class="sig-name descname">Plane</code><span class="sig-paren">(</span><em class="sig-param">a=0</em>, <em class="sig-param">b=0</em>, <em class="sig-param">c=0</em>, <em class="sig-param">d=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Plane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Plane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class provides support for the mathematical operations
+required to construct and manipulate planes</p>
+<dl class="method">
+<dt id="dicom3d.Plane.a">
+<em class="property">property </em><code class="sig-name descname">a</code><a class="headerlink" href="#dicom3d.Plane.a" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a plane described by equation ‘ax + by + cx = d’, this property
+modifies the ‘a’ component of the plane</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Plane.angle">
+<code class="sig-name descname">angle</code><span class="sig-paren">(</span><em class="sig-param">p</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Plane.angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Plane.angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the angle made by the given plane with another one</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p</strong> (<a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane"><em>Plane</em></a>) – plane argument to calculate angle with</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulted angle in radians</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function actually calculates the angle made by the two
+plane’s normal vectors</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Plane.b">
+<em class="property">property </em><code class="sig-name descname">b</code><a class="headerlink" href="#dicom3d.Plane.b" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a plane described by equation ‘ax + by + cx = d’, this property
+modifies the ‘b’ component of the plane</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Plane.c">
+<em class="property">property </em><code class="sig-name descname">c</code><a class="headerlink" href="#dicom3d.Plane.c" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a plane described by equation ‘ax + by + cx = d’, this property
+modifies the ‘c’ component of the plane</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Plane.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Plane.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Plane.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a copy of itself</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>resulting plane object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane">Plane</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Plane.equals">
+<code class="sig-name descname">equals</code><span class="sig-paren">(</span><em class="sig-param">p</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Plane.equals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Plane.equals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a plane is equal to another</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p</strong> (<a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane"><em>Plane</em></a>) – argument plane to check equality</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>True</strong> if equation is equal or <strong>False</strong> otherwise</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plane1</span> <span class="o">=</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="s2">&quot;xy&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plane2</span> <span class="o">=</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_coords</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plane2</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">plane1</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plane2</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">plane1</span><span class="o">.</span><span class="n">move</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)))</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Plane.from_axes">
+<em class="property">static </em><code class="sig-name descname">from_axes</code><span class="sig-paren">(</span><em class="sig-param">axes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Plane.from_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Plane.from_axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a vector from two axis</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>axes</strong> (<em>str</em>) – string defining the two axis (“xy”,”xz” or “yz”)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – on invalid axis definition</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>resulting plane object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane">Plane</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">oxy</span> <span class="o">=</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="s2">&quot;xy&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">oxz</span> <span class="o">=</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="s2">&quot;xz&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">oyz</span> <span class="o">=</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="s2">&quot;yz&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">degrees</span><span class="p">(</span><span class="n">oxz</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">oxy</span><span class="p">))</span>
+<span class="go">90.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Plane.from_coords">
+<em class="property">static </em><code class="sig-name descname">from_coords</code><span class="sig-paren">(</span><em class="sig-param">origin</em>, <em class="sig-param">target</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Plane.from_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Plane.from_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a plane from a vector described by two points in space</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The resulted plane’s normal vector will be trimmed to be a unit
+vector</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>origin</strong> (<em>tuple</em><em>, </em><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a>) – source or origin point</p></li>
+<li><p><strong>target</strong> (<em>tuple</em><em>, </em><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a>) – target or end point</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting plane object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane">Plane</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plane1</span> <span class="o">=</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="s2">&quot;xz&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plane2</span> <span class="o">=</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_coords</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plane1</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">plane2</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Plane.from_normal">
+<em class="property">static </em><code class="sig-name descname">from_normal</code><span class="sig-paren">(</span><em class="sig-param">normal</em>, <em class="sig-param">d=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Plane.from_normal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Plane.from_normal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a plane from a normal vector and the <strong>d</strong> component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>normal</strong> (<a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector"><em>Vector</em></a>) – normal vector</p></li>
+<li><p><strong>d</strong> (<em>int</em><em>, </em><em>optional</em>) – <strong>d</strong> component of the plane, defaults to 0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting plane object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane">Plane</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Plane.intersects">
+<code class="sig-name descname">intersects</code><span class="sig-paren">(</span><em class="sig-param">point</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Plane.intersects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Plane.intersects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verifies if a given point intersects the current plane</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>point</strong> (<em>tuple</em><em>, </em><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a>) – point argument to check intersection with</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>True</strong> if intersects plane or <strong>False</strong> otherwise</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Plane.move">
+<code class="sig-name descname">move</code><span class="sig-paren">(</span><em class="sig-param">point</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Plane.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Plane.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a plane from the current one, translated to a given point</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function will modify only the <strong>d</strong> component of the plane</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>point</strong> (<em>tuple</em><em>, </em><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a>) – point to translate plane to</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting plane object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane">Plane</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Plane.parallel">
+<code class="sig-name descname">parallel</code><span class="sig-paren">(</span><em class="sig-param">p</em>, <em class="sig-param">tolerance=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Plane.parallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Plane.parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if this plane is parallel to a given one within a given range
+of tolerance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane"><em>Plane</em></a>) – plane argument to check parallelism</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em><em>, </em><em>optional</em>) – tolerance value, defaults to 1.e-4</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>True</strong> if parallel or <strong>False</strong> otherwise</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plane1</span> <span class="o">=</span> <span class="n">Plnae</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="s2">&quot;xy&quot;</span><span class="p">)</span> <span class="c1"># OXY plane</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plane2</span> <span class="o">=</span> <span class="n">plane1</span><span class="o">.</span><span class="n">move</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span> <span class="c1"># move plane to this point</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plane1</span>
+<span class="go">0.00X + 0.00Y + 1.00Z = 0.00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plane2</span>
+<span class="go">0.00X + 0.00Y + 1.00Z = 10.00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plane1</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span><span class="n">plane2</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Plane.resolve">
+<code class="sig-name descname">resolve</code><span class="sig-paren">(</span><em class="sig-param">point</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Plane.resolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Plane.resolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolves the X,Y or Z component of the given point based on
+current plane equation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>point</strong> (<em>tuple</em><em>, </em><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a>) – point to resolve</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting Point</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point">Point</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>To find the Z component of a point that lies on the plane
+and has only the X and Y components defined:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plane</span> <span class="o">=</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_axes</span><span class="p">(</span><span class="s2">&quot;xy&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span><span class="n">radians</span><span class="p">(</span><span class="mi">30</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="n">plane</span><span class="o">.</span><span class="n">resolve</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="kc">None</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Resolved point is X:10 Y:10 Z:</span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">z</span><span class="p">))</span>
+<span class="go">Resolved point is X:10 Y:10 Z:-5.77</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Plane.rotate">
+<code class="sig-name descname">rotate</code><span class="sig-paren">(</span><em class="sig-param">by</em>, <em class="sig-param">angle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Plane.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Plane.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a plane from the current one, with the normal vector
+rotated about an axis or another vector, by a given angle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>by</strong> (<em>str</em><em>,</em><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector"><em>Vector</em></a>) – axis definition (“x”,”y” or “z”) or vector object</p></li>
+<li><p><strong>angle</strong> (<em>float</em>) – angle measured in radians</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting plane object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane">Plane</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Plane.round">
+<code class="sig-name descname">round</code><span class="sig-paren">(</span><em class="sig-param">digits=5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Plane.round"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Plane.round" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rounds the <strong>a</strong>, <strong>b</strong>, <strong>c</strong> and <strong>d</strong> components of the plane
+and returns the resulting plane object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>digits</strong> (<em>int</em><em>, </em><em>optional</em>) – number of digits to round to, defaults to 5</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting plane object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane">Plane</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dicom3d.Vector">
+<em class="property">class </em><code class="sig-prename descclassname">dicom3d.</code><code class="sig-name descname">Vector</code><span class="sig-paren">(</span><em class="sig-param">i=0</em>, <em class="sig-param">j=0</em>, <em class="sig-param">k=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class responsible for providing support for vectorial
+algebra</p>
+<dl class="method">
+<dt id="dicom3d.Vector.angle">
+<code class="sig-name descname">angle</code><span class="sig-paren">(</span><em class="sig-param">vector</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the angle in radians, between this vector and the
+one passed as argument</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vector</strong> (<a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector"><em>Vector</em></a>) – argument vector</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>angle measured in radians</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a copy of itself</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>resulting vector object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector">Vector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.div">
+<code class="sig-name descname">div</code><span class="sig-paren">(</span><em class="sig-param">v</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.div"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.div" title="Permalink to this definition">¶</a></dt>
+<dd><p>Divides a vector by a scalar value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>v</strong> (<em>float</em><em>, </em><em>int</em>) – scalar value to divide by</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting vector object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector">Vector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.dot">
+<code class="sig-name descname">dot</code><span class="sig-paren">(</span><em class="sig-param">v</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.dot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the dot product of a vector with a given one</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>v</strong> (<a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector"><em>Vector</em></a>) – dot product argument</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting vector object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector">Vector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.equals">
+<code class="sig-name descname">equals</code><span class="sig-paren">(</span><em class="sig-param">v</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.equals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.equals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verifies if a vector is identical with the given one</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>v</strong> (<a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector"><em>Vector</em></a>) – vector to verify equality with</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>True</strong> if equal, <strong>False</strong> otherwise</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.from_axis">
+<em class="property">static </em><code class="sig-name descname">from_axis</code><span class="sig-paren">(</span><em class="sig-param">axis</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.from_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.from_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a vector from a given Axis definition</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>axis</strong> (<em>str</em>) – axis name (“x”, “y” or “z”)</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – when an invalid axis name is passed</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>resulting vector</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector">Vector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.from_coords">
+<em class="property">static </em><code class="sig-name descname">from_coords</code><span class="sig-paren">(</span><em class="sig-param">origin</em>, <em class="sig-param">target</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.from_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.from_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a vector from two points in space</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>origin</strong> (<a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a><em>, </em><em>tuple</em>) – origin or source point</p></li>
+<li><p><strong>target</strong> (<a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a><em>, </em><em>tuple</em>) – target or end point</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting vector object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector">Vector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.from_numpy">
+<em class="property">static </em><code class="sig-name descname">from_numpy</code><span class="sig-paren">(</span><em class="sig-param">array</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.from_numpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.from_numpy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a vector from a numpy array of shape (3,1)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>array</strong> (<em>numpy.array</em>) – numpy array to import data from</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting vector object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector">Vector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.from_plane">
+<em class="property">static </em><code class="sig-name descname">from_plane</code><span class="sig-paren">(</span><em class="sig-param">plane</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.from_plane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.from_plane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copies the plane normal vector</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>plane</strong> (<a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane"><em>Plane</em></a>) – plane argument</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting vector object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector">Vector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.i">
+<em class="property">property </em><code class="sig-name descname">i</code><a class="headerlink" href="#dicom3d.Vector.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property describing the <strong>i</strong> component of the vector</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.invert">
+<code class="sig-name descname">invert</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.invert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.invert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a vector pointing in the opposite direction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>resulting vector object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector">Vector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.j">
+<em class="property">property </em><code class="sig-name descname">j</code><a class="headerlink" href="#dicom3d.Vector.j" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property describing the <strong>j</strong> component of the vector</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.k">
+<em class="property">property </em><code class="sig-name descname">k</code><a class="headerlink" href="#dicom3d.Vector.k" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property describing the <strong>k</strong> component of the vector</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.mul">
+<code class="sig-name descname">mul</code><span class="sig-paren">(</span><em class="sig-param">v</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.mul"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.mul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Multiplies a vector with a scalar value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>v</strong> (<em>float</em><em>, </em><em>int</em>) – scalar value to multiply by</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting vector object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector">Vector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.norm">
+<code class="sig-name descname">norm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.norm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the length of the vector</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>length of vector</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.numpy">
+<code class="sig-name descname">numpy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.numpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.numpy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the corresponding numpy array for this vector</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>corresponding numpy array</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.rotate">
+<code class="sig-name descname">rotate</code><span class="sig-paren">(</span><em class="sig-param">by</em>, <em class="sig-param">angle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper function to construct rotated vectors, transparently using
+<strong>dicom3d.Vector.rotate_by_axis</strong> or <strong>dicom3d.Vector.rotate_by_vector</strong>,
+depending on the arguments given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>by</strong> (<em>str</em><em>, </em><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector"><em>Vector</em></a>) – axis definition (“x”, “y” or “z”) or vector object</p></li>
+<li><p><strong>angle</strong> (<em>float</em>) – angle measured in radians</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if an invalid axis name is passed as argument</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>rotated vector object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector">Vector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.rotate_by_axis">
+<code class="sig-name descname">rotate_by_axis</code><span class="sig-paren">(</span><em class="sig-param">axis</em>, <em class="sig-param">angle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.rotate_by_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.rotate_by_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a vector that represents the current one rotated about
+a given axis</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>axis</strong> (<em>str</em>) – axis name definition (“x”, “y” or “z”)</p></li>
+<li><p><strong>angle</strong> (<em>float</em>) – angle measured in radians</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if an invalid axis name is passed</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>rotated vector object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector">Vector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.rotate_by_vector">
+<code class="sig-name descname">rotate_by_vector</code><span class="sig-paren">(</span><em class="sig-param">vector</em>, <em class="sig-param">angle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.rotate_by_vector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.rotate_by_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a vector that represents the current one rotated around a
+given vector</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vector</strong> (<a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector"><em>Vector</em></a>) – pivot vector to perform rotation about</p></li>
+<li><p><strong>angle</strong> (<em>float</em>) – angle measured in radians</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>rotated vector object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector">Vector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.round">
+<code class="sig-name descname">round</code><span class="sig-paren">(</span><em class="sig-param">digits=5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.round"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.round" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rounds the values of <strong>i</strong>, <strong>j</strong> and <strong>k</strong> with a given precision</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>digits</strong> (<em>int</em><em>, </em><em>optional</em>) – number of digits to round to, defaults to 5.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting vector object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector">Vector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.tuple">
+<code class="sig-name descname">tuple</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.tuple" title="Permalink to this definition">¶</a></dt>
+<dd><p>convers a vector to a tuple</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Vector.unit">
+<code class="sig-name descname">unit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Vector.unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Vector.unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the unit vector corresponding to this vector</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>resulting vector object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector">Vector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dicom3d.Point">
+<em class="property">class </em><code class="sig-prename descclassname">dicom3d.</code><code class="sig-name descname">Point</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">z</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class implementing support for point operations in three
+dimensional world coordinates</p>
+<dl class="method">
+<dt id="dicom3d.Point.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Point.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Point.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a copy of itself</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>object copied from self</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point">Point</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Point.distance">
+<code class="sig-name descname">distance</code><span class="sig-paren">(</span><em class="sig-param">to</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Point.distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Point.distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the distance from this point to the given one</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>to</strong> (<a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a><em>, </em><em>float</em>) – end point to calculate distance to</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>distance to the given point</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Point.intersects">
+<code class="sig-name descname">intersects</code><span class="sig-paren">(</span><em class="sig-param">plane</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Point.intersects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Point.intersects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <strong>dicom3d.Plane.intersects</strong>, verifies point intersection with a plane</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>plane</strong> (<a class="reference internal" href="#dicom3d.Plane" title="dicom3d.Plane"><em>Plane</em></a>) – plane to verify intersection with</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>True</strong> if intersects plane, <strong>False</strong> otherwise</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.Point.move">
+<code class="sig-name descname">move</code><span class="sig-paren">(</span><em class="sig-param">by</em>, <em class="sig-param">distance</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#Point.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.Point.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translates this point by a vector and a given distance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>by</strong> (<em>str</em><em>, </em><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector"><em>Vector</em></a>) – axis name (“x”, “y” or “z”) or vector describing translate direction</p></li>
+<li><p><strong>distance</strong> (<em>float</em>) – value describing distance</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>translated point object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point">Point</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dicom3d.LocalCoordinateSystem">
+<em class="property">class </em><code class="sig-prename descclassname">dicom3d.</code><code class="sig-name descname">LocalCoordinateSystem</code><span class="sig-paren">(</span><em class="sig-param">origin</em>, <em class="sig-param">x_vector</em>, <em class="sig-param">y_vector</em>, <em class="sig-param">scaling=(1</em>, <em class="sig-param">1)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#LocalCoordinateSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.LocalCoordinateSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class responsible for transforming local coordinates in a cartesian space
+to world three dimensional coordinations. A <em>Local Coordinate System</em> is
+defined by two axis vectors (one describing the X axis, the other one the Y
+axis in the cartesian bi-dimensional space) and an origin for the (0,0)
+point.</p>
+<p>The scaling factor is optional, but useful when the world you are mapping
+to has a different density than the local cartesian system you are using.</p>
+<dl class="method">
+<dt id="dicom3d.LocalCoordinateSystem.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#LocalCoordinateSystem.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.LocalCoordinateSystem.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a copy of itself</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>resulting coordinate system</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#dicom3d.LocalCoordinateSystem" title="dicom3d.LocalCoordinateSystem">LocalCoordinateSystem</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.LocalCoordinateSystem.measure">
+<code class="sig-name descname">measure</code><span class="sig-paren">(</span><em class="sig-param">point_from</em>, <em class="sig-param">point_to</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#LocalCoordinateSystem.measure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.LocalCoordinateSystem.measure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Measures the distance from <strong>point_from</strong> to <strong>point_to</strong> in world coordinates
+or local coordinates.</p>
+<p>When measuring for local cartesian coordinates the result will be the distance
+from the coresponding transformed world coordindates and viceversa. When
+measuring distance for world coordinates, the result will be the distance
+in local coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – inconsistent dimensions given (e.g. 2D point paired with 3D point)</p></li>
+<li><p><strong>ValueError</strong> – invalid input (e.g. not a 2D point nor 3D point)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>measured distance in local or world coordinates</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># asuming we have a *dicom3d.Dataset* object</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pt1</span><span class="p">,</span> <span class="n">pt2</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">to_mm</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">dataset</span><span class="o">.</span><span class="n">to_mm</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># this will measure the distance in mm between the two points</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pt1</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">pt2</span><span class="p">)</span>
+<span class="go">4.419417382415922</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># which is ecquivalent with this short form</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">measure</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="go">4.419417382415922</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># for measuring the opposite, distance in pixels</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># for the segment defined by the two points</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">measure</span><span class="p">(</span><span class="n">pt1</span><span class="p">,</span><span class="n">pt2</span><span class="p">)</span>
+<span class="go">14.142135623730951</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># which is equivalent to how we calculate the diagonal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># if we knew the corresponding local points</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">14.142135623730951</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.LocalCoordinateSystem.move">
+<code class="sig-name descname">move</code><span class="sig-paren">(</span><em class="sig-param">by</em>, <em class="sig-param">distance</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#LocalCoordinateSystem.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.LocalCoordinateSystem.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translate this local coordinate system’s origin by moving it
+along a given vector and by a given distance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>by</strong> (<em>str</em><em>, </em><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector"><em>Vector</em></a>) – axis name (“x”, “y” or “z”) or vector object describing direction of translation</p></li>
+<li><p><strong>distance</strong> (<em>float</em>) – value describing distance</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the translated coordinate system</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.LocalCoordinateSystem" title="dicom3d.LocalCoordinateSystem">LocalCoordinateSystem</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">section</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">origin</span>
+<span class="go">x:-73.91 y:-81.20 z:6.64</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># move on the x axis 10 mm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">section</span><span class="o">.</span><span class="n">tranform</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span><span class="o">.</span><span class="n">origin</span>
+<span class="go">x:-63.91 y:-81.20 z:6.64</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># move on XY diagonal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span> <span class="o">=</span> <span class="n">Vector</span><span class="o">.</span><span class="n">from_axis</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">radians</span><span class="p">(</span><span class="mi">45</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">section</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span><span class="o">.</span><span class="n">origin</span>
+<span class="go">x:-66.84 y:-74.13 z:6.64</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.LocalCoordinateSystem.rotate">
+<code class="sig-name descname">rotate</code><span class="sig-paren">(</span><em class="sig-param">by</em>, <em class="sig-param">angle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#LocalCoordinateSystem.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.LocalCoordinateSystem.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotates this coordinate system X and Y axes about a vector or an axis
+and returns the newly modified coordinate system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>by</strong> (<em>str</em><em>, </em><a class="reference internal" href="#dicom3d.Vector" title="dicom3d.Vector"><em>Vector</em></a>) – axis definition (“x”, “y” or “z”) or vector object</p></li>
+<li><p><strong>angle</strong> (<em>float</em>) – angle measured in radians</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the rotated coordinate system</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.LocalCoordinateSystem" title="dicom3d.LocalCoordinateSystem">LocalCoordinateSystem</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">section</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">x_vector</span>
+<span class="go">i:1.00 j:0.00 k:0.00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">section</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,</span><span class="n">radians</span><span class="p">(</span><span class="mi">45</span><span class="p">))</span><span class="o">.</span><span class="n">x_vector</span>
+<span class="go">i:0.71 j:0.71 k:0.00</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.LocalCoordinateSystem.scale">
+<code class="sig-name descname">scale</code><span class="sig-paren">(</span><em class="sig-param">by</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#LocalCoordinateSystem.scale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.LocalCoordinateSystem.scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify the scaling factor of the current coordinate system and construct
+another one with the resulting scaling factor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>by</strong> (<em>float</em><em>, </em><em>tuple</em>) – value or tuple of values describing the scaling factor</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the scaled coordinate system</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.LocalCoordinateSystem" title="dicom3d.LocalCoordinateSystem">LocalCoordinateSystem</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transform1</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transform2</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dist1</span> <span class="o">=</span> <span class="n">transform1</span><span class="o">.</span><span class="n">to_world</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">transform1</span><span class="o">.</span><span class="n">to_world</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dist2</span> <span class="o">=</span> <span class="n">transform2</span><span class="o">.</span><span class="n">to_world</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">transform2</span><span class="o">.</span><span class="n">to_world</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Distance before scale: </span><span class="si">%.1f</span><span class="s2"> after: </span><span class="si">%.1f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dist1</span><span class="p">,</span> <span class="n">dist2</span><span class="p">))</span>
+<span class="go">Distance before scale: 4.4 after: 2.2</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.LocalCoordinateSystem.to_local">
+<code class="sig-name descname">to_local</code><span class="sig-paren">(</span><em class="sig-param">coords</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#LocalCoordinateSystem.to_local"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.LocalCoordinateSystem.to_local" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms the givel world three dimensional coordinates to local
+cartesian coordinates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coords</strong> (<a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point"><em>Point</em></a><em>, </em><em>tuple</em>) – world three dimensional coordinates</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>tuple of the resulting cartesian coordinates in <strong>float</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.LocalCoordinateSystem.to_world">
+<code class="sig-name descname">to_world</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#LocalCoordinateSystem.to_world"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.LocalCoordinateSystem.to_world" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform local cartesian coordinates (<strong>x</strong> and <strong>y</strong>) to three
+dimesnional world coordinates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em><em>, </em><em>int</em>) – value of cartesian <strong>x</strong> coordinate</p></li>
+<li><p><strong>y</strong> (<em>float</em><em>, </em><em>int</em>) – value of cartesian <strong>y</strong> coordinate</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>point object describing resulting coordinates</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#dicom3d.Point" title="dicom3d.Point">Point</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transform</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">transfrom</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transform</span><span class="o">.</span><span class="n">to_world</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">x:-73.91 y:-81.20 z:6.64</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transform</span><span class="o">.</span><span class="n">to_world</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+<span class="go">x:-70.78 y:-78.08 z:6.6</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dist</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">to_world</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span> <span class="n">transform</span><span class="o">.</span><span class="n">to_world</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;From (0,0) to (10,10) distance is: </span><span class="si">%.1f</span><span class="s2"> mm&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dist</span><span class="p">))</span>
+<span class="go">From (0,0) to (10,10) distance is: 4.4 mm</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.LocalCoordinateSystem.update">
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#LocalCoordinateSystem.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.LocalCoordinateSystem.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each direct modification made to this coordinate system, a call
+to this function is required to update the transformation matrix</p>
+<p class="rubric">Examples</p>
+<p>Assuming you decide to set a new origin point:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lcs</span> <span class="o">=</span> <span class="n">LocalCoordinateSystem</span><span class="p">(</span>
+<span class="go">                Vector.from_axis(&quot;x),</span>
+<span class="go">                Vector.from_axis(&quot;y&quot;),</span>
+<span class="go">                Point(0,0,0))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lcs</span><span class="o">.</span><span class="n">origin</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lcs</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># now you can safely transform from and to cartesian space</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pt</span> <span class="o">=</span> <span class="n">lcs</span><span class="o">.</span><span class="n">to_world</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Origin:&quot;</span><span class="p">,</span> <span class="n">pt</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="dicom3d.degrees">
+<code class="sig-prename descclassname">dicom3d.</code><code class="sig-name descname">degrees</code><span class="sig-paren">(</span><em class="sig-param">radians</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#degrees"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.degrees" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the given angle from radians to degrees</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>radians</strong> (<em>float</em>) – angle in radians</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting angle in degrees</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="dicom3d.radians">
+<code class="sig-prename descclassname">dicom3d.</code><code class="sig-name descname">radians</code><span class="sig-paren">(</span><em class="sig-param">degrees</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/geometry.html#radians"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.radians" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a given angle from degrees to radians</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>degrees</strong> (<em>float</em>) – angle in degrees</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>resulting angle in radians</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dicom3d.data.html">dicom3d.data package</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dicom3d.dicomdir">
+<span id="dicom3d-dicomdir-module"></span><h2>dicom3d.dicomdir module<a class="headerlink" href="#module-dicom3d.dicomdir" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dicom3d.dicomdir.DiicomDir">
+<em class="property">class </em><code class="sig-prename descclassname">dicom3d.dicomdir.</code><code class="sig-name descname">DiicomDir</code><a class="reference internal" href="../_modules/dicom3d/dicomdir.html#DiicomDir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.dicomdir.DiicomDir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="dicom3d.dicomdir.DiicomDir.find">
+<code class="sig-name descname">find</code><span class="sig-paren">(</span><em class="sig-param">record_attrs=None</em>, <em class="sig-param">study_attrs=None</em>, <em class="sig-param">series_attrs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dicomdir.html#DiicomDir.find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.dicomdir.DiicomDir.find" title="Permalink to this definition">¶</a></dt>
+<dd><p>finds records, studies and series based on a set of given attributes for each</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.dicomdir.DiicomDir.find_records">
+<code class="sig-name descname">find_records</code><span class="sig-paren">(</span><em class="sig-param">attrs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dicomdir.html#DiicomDir.find_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.dicomdir.DiicomDir.find_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>finds records based on a dictionary of attributes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.dicomdir.DiicomDir.find_series">
+<code class="sig-name descname">find_series</code><span class="sig-paren">(</span><em class="sig-param">studies</em>, <em class="sig-param">attrs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dicomdir.html#DiicomDir.find_series"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.dicomdir.DiicomDir.find_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>finds series based on a dictionary of attributes, from a list of given studies</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.dicomdir.DiicomDir.find_studies">
+<code class="sig-name descname">find_studies</code><span class="sig-paren">(</span><em class="sig-param">records</em>, <em class="sig-param">attrs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dicomdir.html#DiicomDir.find_studies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.dicomdir.DiicomDir.find_studies" title="Permalink to this definition">¶</a></dt>
+<dd><p>finds studies based on a dictionary of attributes, from a list of given records</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.dicomdir.DiicomDir.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">filepath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dicomdir.html#DiicomDir.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.dicomdir.DiicomDir.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads a dicomdir from a given filepath</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.dicomdir.DiicomDir.print">
+<code class="sig-name descname">print</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/dicomdir.html#DiicomDir.print"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.dicomdir.DiicomDir.print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints loaded records, studies and series</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dicom3d.plotter">
+<span id="dicom3d-plotter-module"></span><h2>dicom3d.plotter module<a class="headerlink" href="#module-dicom3d.plotter" title="Permalink to this headline">¶</a></h2>
+<p>mathplotlib</p>
+<dl class="class">
+<dt id="dicom3d.plotter.plotter">
+<em class="property">class </em><code class="sig-prename descclassname">dicom3d.plotter.</code><code class="sig-name descname">plotter</code><span class="sig-paren">(</span><em class="sig-param">figsize=(8</em>, <em class="sig-param">8)</em>, <em class="sig-param">rows=1</em>, <em class="sig-param">columns=1</em>, <em class="sig-param">projection=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/plotter.html#plotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.plotter.plotter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>TBD</p>
+<dl class="method">
+<dt id="dicom3d.plotter.plotter.image">
+<code class="sig-name descname">image</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">cmap='gray'</em>, <em class="sig-param">title=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/plotter.html#plotter.image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.plotter.plotter.image" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.plotter.plotter.numpy">
+<code class="sig-name descname">numpy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/plotter.html#plotter.numpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.plotter.plotter.numpy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.plotter.plotter.plot_dataset">
+<code class="sig-name descname">plot_dataset</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">marker_coords=None</em>, <em class="sig-param">marker_line=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/plotter.html#plotter.plot_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.plotter.plotter.plot_dataset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.plotter.plotter.show">
+<code class="sig-name descname">show</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/plotter.html#plotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.plotter.plotter.show" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.plotter.plotter.subnew">
+<code class="sig-name descname">subnew</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/plotter.html#plotter.subnew"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.plotter.plotter.subnew" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dicom3d.plotter.plotter.subplots">
+<code class="sig-name descname">subplots</code><span class="sig-paren">(</span><em class="sig-param">rows</em>, <em class="sig-param">columns</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dicom3d/plotter.html#plotter.subplots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dicom3d.plotter.plotter.subplots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">dicom3d  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Bitdefender LLC.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

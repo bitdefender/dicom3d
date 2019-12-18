@@ -1,0 +1,395 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dicom3d.section &#8212; dicom3d  documentation</title>
+    <link rel="stylesheet" href="../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">dicom3d  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for dicom3d.section</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># internal</span>
+<span class="kn">from</span> <span class="nn">.geometry</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.data</span> <span class="k">import</span> <span class="n">walk_data</span>
+<span class="kn">from</span> <span class="nn">.series</span> <span class="k">import</span> <span class="n">Series</span>
+
+<div class="viewcode-block" id="Section"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Section">[docs]</a><span class="k">class</span> <span class="nc">Section</span><span class="p">():</span>
+
+	<span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">		This class manages a section of the volumetrical scan, able to produce</span>
+<span class="sd">		a planar image of the datasets intersecting it </span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			To build a section, you can use: </span>
+<span class="sd">				&gt;&gt;&gt; section = Section.from_plane(series, plane, origin)</span>
+
+<span class="sd">			To get the image corresponding wiith this section:</span>
+<span class="sd">				&gt;&gt;&gt; section.image() </span>
+
+<span class="sd">			To use the local coordinate system:</span>
+<span class="sd">				&gt;&gt;&gt; point = section.to_mm(x,y)</span>
+<span class="sd">				&gt;&gt;&gt; x,y = section.to_pixel(point)  </span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series</span><span class="p">,</span> <span class="n">coordinateMapping</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">series</span>    <span class="o">=</span> <span class="n">series</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">coordinateMapping</span>
+
+<div class="viewcode-block" id="Section.from_plane"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Section.from_plane">[docs]</a>	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">from_plane</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Creates a section from a **dicom3d.Plane** and an origin point that will act</span>
+<span class="sd">		as section&#39;s center</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			series (Series): a **dicom3d.Series** object</span>
+<span class="sd">			plane (Plane): plane definition for this section</span>
+<span class="sd">			origin (Point, tuple): section&#39;s center point in world coordinates </span>
+<span class="sd">			orientation (bool, optional): Fixes orientation. Defaults to True.</span>
+<span class="sd">		</span>
+<span class="sd">		Raises:</span>
+<span class="sd">			Exception: when intersection errors are detected</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Section: constructed section object </span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">oz</span> <span class="o">=</span> <span class="n">origin</span>
+
+		<span class="c1"># find dataset that interesects origin</span>
+		<span class="n">dataset</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">at_z</span><span class="p">(</span><span class="n">oz</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;origin (</span><span class="si">%s</span><span class="s2">) doesn&#39;t intersect any dataset&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">origin</span><span class="p">))</span>
+
+		<span class="k">if</span> <span class="n">plane</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">plane</span><span class="p">()):</span>
+
+			<span class="c1"># just copy X,Y from dataset</span>
+			<span class="n">x_vector</span>  <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">x_vector</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+			<span class="n">y_vector</span>  <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">y_vector</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+		<span class="k">else</span><span class="p">:</span>
+			<span class="c1"># get interesection points with the given plane</span>
+			<span class="n">points</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">plane_intersection</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;dataset at origin does not intersect plane&quot;</span><span class="p">)</span>
+
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;number of intesection points is invalid (</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)))</span>
+
+			<span class="c1"># select any point from dataset intersection</span>
+			<span class="n">point</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+			<span class="c1"># construct X and Y axes</span>
+			<span class="c1"># Note: Y axis is actually the X vector rotated 90 degrees</span>
+			<span class="n">normal</span>   <span class="o">=</span> <span class="n">Vector</span><span class="o">.</span><span class="n">from_plane</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span>
+			<span class="n">x_vector</span> <span class="o">=</span> <span class="n">Vector</span><span class="o">.</span><span class="n">from_coords</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span><span class="o">.</span><span class="n">unit</span><span class="p">()</span>
+			<span class="n">y_vector</span> <span class="o">=</span> <span class="n">x_vector</span><span class="o">.</span><span class="n">rotate_by_vector</span><span class="p">(</span><span class="n">normal</span><span class="p">,</span><span class="n">radians</span><span class="p">(</span><span class="mi">90</span><span class="p">))</span>
+
+			<span class="c1"># make sure X,Y vector has the same orientation, disregarding slice</span>
+			<span class="k">if</span> <span class="n">orientation</span><span class="p">:</span>
+				<span class="n">orx</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+				<span class="n">ory</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+				<span class="k">if</span> <span class="n">x_vector</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">orx</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+					<span class="n">x_vector</span> <span class="o">=</span> <span class="n">x_vector</span><span class="o">.</span><span class="n">invert</span><span class="p">()</span>
+
+				<span class="k">if</span> <span class="n">y_vector</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ory</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+					<span class="n">y_vector</span> <span class="o">=</span> <span class="n">y_vector</span><span class="o">.</span><span class="n">invert</span><span class="p">()</span>
+
+				<span class="k">if</span> <span class="n">y_vector</span><span class="o">.</span><span class="n">k</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+					<span class="n">y_vector</span> <span class="o">=</span> <span class="n">y_vector</span><span class="o">.</span><span class="n">invert</span><span class="p">()</span>
+
+		<span class="c1">#print(&quot;X: %s Y: %s&quot; % (x_vector, y_vector))</span>
+		<span class="k">return</span> <span class="n">Section</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">LocalCoordinateSystem</span><span class="p">(</span>
+				<span class="n">origin</span><span class="p">,</span>
+				<span class="n">x_vector</span><span class="p">,</span> <span class="n">y_vector</span><span class="p">,</span> 
+				<span class="n">scaling</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">PixelSpacing</span> 
+			<span class="p">))</span></div>
+
+<div class="viewcode-block" id="Section.from_dataset"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Section.from_dataset">[docs]</a>	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">from_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Constructs a section from a single DICOM dataset</span>
+
+<span class="sd">		Args:</span>
+<span class="sd">			dataset (Dataset): planar DICOM dataset</span>
+<span class="sd">			origin (): world coordinates of section center</span>
+
+<span class="sd">		Returns:</span>
+<span class="sd">			Section: constructed section object</span>
+
+<span class="sd">		Important:</span>
+<span class="sd">			This function will construct a pseudo-series which will contain</span>
+<span class="sd">			a single dataset. The pseudo-series can be accesses via *series*</span>
+<span class="sd">			class member</span>
+
+<span class="sd">			&gt;&gt;&gt; section = dicom3d.Section.from_dataset(dataset)</span>
+<span class="sd">			&gt;&gt;&gt; series = section.series</span>
+<span class="sd">			&gt;&gt;&gt; series.count()</span>
+<span class="sd">			1</span>
+<span class="sd">			&gt;&gt;&gt; series.first() == series.last()</span>
+<span class="sd">			True</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># construct single-dataset series</span>
+		<span class="n">series</span> <span class="o">=</span> <span class="n">Series</span><span class="o">.</span><span class="n">from_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+		<span class="n">dataset</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+		<span class="c1"># borrow dataset&#39;s coordinate system</span>
+		<span class="n">lcs</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+		<span class="n">lcs</span><span class="o">.</span><span class="n">origin</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">center</span><span class="p">()</span>
+		<span class="n">lcs</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+		<span class="k">return</span> <span class="n">Section</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">lcs</span><span class="p">)</span></div>
+
+	<span class="k">def</span> <span class="nf">_set_pixelspacing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">v</span><span class="p">):</span> 
+		<span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">scaling</span> <span class="o">=</span> <span class="n">v</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+	<span class="k">def</span> <span class="nf">_get_pixelspacing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> 
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">scaling</span>
+
+	<span class="k">def</span> <span class="nf">_set_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">v</span><span class="p">):</span> 
+		<span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">v</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">scaling</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">dx</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">dy</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+	<span class="k">def</span> <span class="nf">_get_density</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> 
+		<span class="n">psx</span><span class="p">,</span> <span class="n">psy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">scaling</span>
+		<span class="k">return</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">psx</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">psy</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">_set_dpi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">v</span><span class="p">):</span> 
+		<span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">v</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">scaling</span> <span class="o">=</span> <span class="p">(</span><span class="n">dx</span> <span class="o">/</span> <span class="mf">25.4</span><span class="p">,</span> <span class="n">dy</span> <span class="o">/</span> <span class="mf">25.4</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+	<span class="k">def</span> <span class="nf">_get_dpi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> 
+		<span class="n">psx</span><span class="p">,</span> <span class="n">psy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">scaling</span>
+		<span class="k">return</span> <span class="p">(</span><span class="n">psx</span><span class="o">*</span><span class="mf">25.4</span><span class="p">,</span> <span class="n">psy</span><span class="o">*</span><span class="mf">25.4</span><span class="p">)</span>
+
+	<span class="n">pixel_spacing</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_pixelspacing</span><span class="p">,</span> <span class="n">_set_pixelspacing</span><span class="p">)</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Property describing the distance in millimeters between section&#39;s pixels </span>
+<span class="sd">	</span>
+<span class="sd">	Returns:</span>
+<span class="sd">		tuple: a *tuple* of floats describing the X and Y spacing</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="n">pixel_density</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_density</span><span class="p">,</span> <span class="n">_set_density</span><span class="p">)</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	It is the opposite of the **pixel_spacing** property and describes</span>
+<span class="sd">	how many pixels are per square millimeter. </span>
+<span class="sd">	</span>
+<span class="sd">	Returns:</span>
+<span class="sd">		tuple: a *tuple* of floats representing the density on X and Y axis</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="n">dpi</span> 		  <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_dpi</span><span class="p">,</span> <span class="n">_set_dpi</span><span class="p">)</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Dots per inch property. Similar with **pixel_density** propery, except that </span>
+<span class="sd">	it calculates the density per square inch, not per millimeter.</span>
+<span class="sd">	</span>
+<span class="sd">	Returns:</span>
+<span class="sd">		tuple: a *tuple* of floats representing the density on X and Y axis</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Section.to_mm"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Section.to_mm">[docs]</a>	<span class="k">def</span> <span class="nf">to_mm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Converts the local pixel coordinates to world coordinates in millimeter units </span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			x (int): value on the X axis</span>
+<span class="sd">			y (int): value on the Y axis</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Point: transformed three-dimensional point representing world coordinates </span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">to_world</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Section.to_pixel"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Section.to_pixel">[docs]</a>	<span class="k">def</span> <span class="nf">to_pixel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Converts the given point from world coordinates in millimeter units, </span>
+<span class="sd">		to local coordinates, in pixels. </span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			coords (tuple, Point): point describing world coordinates</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			tuple: transformed two-dimensional point representing local coordinates</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">to_local</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+		<span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">))</span></div>
+
+	<span class="k">def</span> <span class="nf">_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">line_y</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">max_width</span><span class="p">):</span>
+
+		<span class="n">ox</span><span class="p">,</span> <span class="n">oy</span> <span class="o">=</span> <span class="n">offset</span>
+
+		<span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_mm</span><span class="p">(</span><span class="mi">0</span> <span class="o">+</span> <span class="n">ox</span><span class="p">,</span> <span class="n">line_y</span> <span class="o">+</span> <span class="n">oy</span><span class="p">)</span>
+		<span class="n">end</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_mm</span><span class="p">(</span><span class="n">max_width</span> <span class="o">+</span> <span class="n">ox</span><span class="p">,</span> <span class="n">line_y</span> <span class="o">+</span> <span class="n">oy</span><span class="p">)</span>
+
+		<span class="n">sx</span><span class="p">,</span><span class="n">sy</span><span class="p">,</span><span class="n">sz</span> <span class="o">=</span> <span class="n">start</span>
+		<span class="n">ex</span><span class="p">,</span><span class="n">ey</span><span class="p">,</span><span class="n">ez</span> <span class="o">=</span> <span class="n">end</span>
+		<span class="n">ix</span><span class="p">,</span><span class="n">iy</span><span class="p">,</span><span class="n">iz</span> <span class="o">=</span> <span class="p">(</span><span class="n">ex</span><span class="o">-</span><span class="n">sx</span><span class="p">)</span><span class="o">/</span><span class="n">max_width</span><span class="p">,</span> <span class="p">(</span><span class="n">ey</span><span class="o">-</span><span class="n">sy</span><span class="p">)</span><span class="o">/</span><span class="n">max_width</span><span class="p">,(</span><span class="n">ez</span><span class="o">-</span><span class="n">sz</span><span class="p">)</span><span class="o">/</span><span class="n">max_width</span>
+
+		<span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">series</span><span class="o">.</span><span class="n">at_z</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">return</span>
+
+		<span class="n">pixarr</span>  <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">pixel_array</span>
+		<span class="n">line_array</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">line_y</span><span class="p">]</span>
+
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">max_width</span><span class="p">):</span>
+
+			<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">to_pixel</span><span class="p">((</span><span class="n">sx</span><span class="p">,</span><span class="n">sy</span><span class="p">,</span><span class="n">sz</span><span class="p">))</span>
+
+			<span class="c1"># next pixel</span>
+			<span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="n">sz</span> <span class="o">=</span> <span class="n">sx</span> <span class="o">+</span> <span class="n">ix</span><span class="p">,</span> <span class="n">sy</span> <span class="o">+</span> <span class="n">iy</span><span class="p">,</span> <span class="n">sz</span> <span class="o">+</span> <span class="n">iz</span>
+
+			<span class="c1"># out of range</span>
+			<span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">Columns</span><span class="p">:</span> <span class="k">continue</span>
+			<span class="k">if</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">Rows</span>   <span class="p">:</span> <span class="k">continue</span>
+
+			<span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">intersects_z</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span> 
+				<span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">series</span><span class="o">.</span><span class="n">at_z</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span>
+				<span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+					<span class="k">return</span> <span class="c1"># out of Z bounds</span>
+				<span class="n">pixarr</span>  <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">pixel_array</span>
+
+			<span class="c1"># copy pixel</span>
+			<span class="n">line_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pixarr</span><span class="p">[</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">]</span>
+
+		<span class="k">return</span> 
+
+<div class="viewcode-block" id="Section.image"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Section.image">[docs]</a>	<span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Constructs the image corresponding to this section and return an numpy array,</span>
+<span class="sd">		describing the image</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			size (tuple): tuple of float or integer width,height values (see notes)</span>
+<span class="sd">		</span>
+<span class="sd">		Raises:</span>
+<span class="sd">			ValueError: when input of unknown type is received</span>
+<span class="sd">			Exception: on intersection errors</span>
+
+<span class="sd">		Note:</span>
+<span class="sd">			If the **size** argument is a tuple of integers, then it will be treated as</span>
+<span class="sd">			width and height in pixels of the resulting image. </span>
+<span class="sd">			If it&#39;s a tuple of floats, then it will be considered to be the width and height</span>
+<span class="sd">			in millimeters for each for the area covered by the resulting image. </span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			numpy.array: numpy array of the constructed image</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">size</span>
+
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">width</span><span class="p">)</span> <span class="o">==</span> <span class="nb">float</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">height</span><span class="p">)</span> <span class="o">==</span> <span class="nb">float</span><span class="p">:</span>
+			<span class="c1"># size is in millimeters -&gt; convert to pixels</span>
+
+			<span class="c1"># move origin right and up</span>
+			<span class="n">origin</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">origin</span>
+			<span class="n">far_right</span> <span class="o">=</span> <span class="n">origin</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">x_vector</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+			<span class="n">far_up</span>    <span class="o">=</span> <span class="n">origin</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">y_vector</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+
+			<span class="c1"># convert to pixel and measure lengths</span>
+			<span class="n">frx</span><span class="p">,</span><span class="n">fry</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_pixel</span><span class="p">(</span><span class="n">far_right</span><span class="p">)</span>
+			<span class="n">fux</span><span class="p">,</span><span class="n">fuy</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_pixel</span><span class="p">(</span><span class="n">far_up</span><span class="p">)</span>
+
+			<span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">frx</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">fry</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+			<span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">fux</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">fuy</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+			<span class="c1"># normalise</span>
+			<span class="n">max_lines</span><span class="p">,</span> <span class="n">max_width</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">dx</span><span class="p">)),</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">dy</span><span class="p">))</span>
+
+		<span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">width</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">height</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+			<span class="c1"># size is in pixels</span>
+			<span class="n">max_lines</span><span class="p">,</span> <span class="n">max_width</span> <span class="o">=</span> <span class="n">size</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+				<span class="s2">&quot;Unknown section image size type (</span><span class="si">%s</span><span class="s2">) need tuple of floats or integers&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">size</span><span class="p">)))</span>
+
+		<span class="c1"># move the (0,0) origin to top-left</span>
+		<span class="n">offset</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">max_width</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">max_lines</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
+
+		<span class="c1"># preallocate</span>
+		<span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">max_lines</span><span class="p">,</span> <span class="n">max_width</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">long</span><span class="p">)</span>
+
+		<span class="c1"># populate</span>
+		<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">max_lines</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">max_width</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">image</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">dicom3d  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Bitdefender LLC.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

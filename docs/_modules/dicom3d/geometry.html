@@ -1,0 +1,1120 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dicom3d.geometry &#8212; dicom3d  documentation</title>
+    <link rel="stylesheet" href="../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">dicom3d  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for dicom3d.geometry</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="k">import</span> <span class="n">norm</span>
+
+<div class="viewcode-block" id="degrees"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.degrees">[docs]</a><span class="k">def</span> <span class="nf">degrees</span><span class="p">(</span><span class="n">radians</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Converts the given angle from radians to degrees</span>
+<span class="sd">	</span>
+<span class="sd">	Args:</span>
+<span class="sd">		radians (float): angle in radians</span>
+<span class="sd">	</span>
+<span class="sd">	Returns:</span>
+<span class="sd">		float: resulting angle in degrees</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">radians</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="radians"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.radians">[docs]</a><span class="k">def</span> <span class="nf">radians</span><span class="p">(</span><span class="n">degrees</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Converts a given angle from degrees to radians</span>
+<span class="sd">	</span>
+<span class="sd">	Args:</span>
+<span class="sd">		degrees (float): angle in degrees</span>
+<span class="sd">	</span>
+<span class="sd">	Returns:</span>
+<span class="sd">		float: resulting angle in radians</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">degrees</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Point"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Point">[docs]</a><span class="k">class</span> <span class="nc">Point</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Class implementing support for point operations in three</span>
+<span class="sd">		dimensional world coordinates </span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span>
+
+<div class="viewcode-block" id="Point.copy"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Point.copy">[docs]</a>	<span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Creates a copy of itself</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Point: object copied from self</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Point.distance"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Point.distance">[docs]</a>	<span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Calculates the distance from this point to the given one</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			to (Point, float): end point to calculate distance to</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			float: distance to the given point</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+			<span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">to</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span>
+			<span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">to</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> 
+			<span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">to</span><span class="o">.</span><span class="n">z</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="p">))</span></div>
+
+<div class="viewcode-block" id="Point.move"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Point.move">[docs]</a>	<span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">by</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Translates this point by a vector and a given distance</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			by (str, Vector): axis name (&quot;x&quot;, &quot;y&quot; or &quot;z&quot;) or vector describing translate direction</span>
+<span class="sd">			distance (float): value describing distance   </span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Point: translated point object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">by</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+			<span class="n">by</span> <span class="o">=</span> <span class="n">Vector</span><span class="o">.</span><span class="n">from_axis</span><span class="p">(</span><span class="n">by</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">Point</span><span class="p">(</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">distance</span> <span class="o">*</span> <span class="n">by</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> 
+			<span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">distance</span> <span class="o">*</span> <span class="n">by</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> 
+			<span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">+</span> <span class="n">distance</span> <span class="o">*</span> <span class="n">by</span><span class="o">.</span><span class="n">k</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Point.intersects"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Point.intersects">[docs]</a>	<span class="k">def</span> <span class="nf">intersects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plane</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Same as **dicom3d.Plane.intersects**, verifies point intersection with a plane</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			plane (Plane): plane to verify intersection with</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			bool: **True** if intersects plane, **False** otherwise</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">plane</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+	<span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="mi">3</span>
+
+	<span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+		<span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span>
+		<span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span>
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Point class has no item &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">item</span><span class="p">))</span>
+	
+	<span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+		<span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span>
+		<span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span>
+
+	<span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="s2">&quot;x:</span><span class="si">%.2f</span><span class="s2"> y:</span><span class="si">%.2f</span><span class="s2"> z:</span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vector"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector">[docs]</a><span class="k">class</span> <span class="nc">Vector</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">		Class responsible for providing support for vectorial</span>
+<span class="sd">		algebra</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">i</span><span class="p">],[</span><span class="n">j</span><span class="p">],[</span><span class="n">k</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+	<span class="c1"># PROPERTIES #</span>
+	<span class="k">def</span> <span class="nf">_geti</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+	<span class="k">def</span> <span class="nf">_getj</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+	<span class="k">def</span> <span class="nf">_getk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+	<span class="k">def</span> <span class="nf">_seti</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">v</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+	<span class="k">def</span> <span class="nf">_setj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">v</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+	<span class="k">def</span> <span class="nf">_setk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">v</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+	<span class="n">i</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_geti</span><span class="p">,</span> <span class="n">_seti</span><span class="p">)</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Property describing the **i** component of the vector</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">j</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_getj</span><span class="p">,</span> <span class="n">_setj</span><span class="p">)</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Property describing the **j** component of the vector</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">k</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_getk</span><span class="p">,</span> <span class="n">_setk</span><span class="p">)</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Property describing the **k** component of the vector</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Vector.from_numpy"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.from_numpy">[docs]</a>	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">from_numpy</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Constructs a vector from a numpy array of shape (3,1)</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			array (numpy.array): numpy array to import data from</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Vector: resulting vector object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">assert</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+
+		<span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="k">return</span> <span class="n">Vector</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vector.from_plane"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.from_plane">[docs]</a>	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">from_plane</span><span class="p">(</span><span class="n">plane</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Copies the plane normal vector</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			plane (Plane): plane argument</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Vector: resulting vector object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">plane</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Vector.from_coords"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.from_coords">[docs]</a>	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">from_coords</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Constructs a vector from two points in space</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			origin (Point, tuple): origin or source point</span>
+<span class="sd">			target (Point, tuple): target or end point</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Vector: resulting vector object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">xo</span><span class="p">,</span><span class="n">yo</span><span class="p">,</span><span class="n">zo</span> <span class="o">=</span> <span class="n">origin</span>
+		<span class="n">xt</span><span class="p">,</span><span class="n">yt</span><span class="p">,</span><span class="n">zt</span> <span class="o">=</span> <span class="n">target</span>
+		<span class="k">return</span> <span class="n">Vector</span><span class="p">(</span><span class="n">xt</span><span class="o">-</span><span class="n">xo</span><span class="p">,</span> <span class="n">yt</span><span class="o">-</span><span class="n">yo</span><span class="p">,</span> <span class="n">zt</span><span class="o">-</span><span class="n">zo</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vector.from_axis"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.from_axis">[docs]</a>	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">from_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Constructs a vector from a given Axis definition</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			axis (str): axis name (&quot;x&quot;, &quot;y&quot; or &quot;z&quot;)</span>
+<span class="sd">		</span>
+<span class="sd">		Raises:</span>
+<span class="sd">			ValueError: when an invalid axis name is passed</span>
+
+<span class="sd">		Returns:</span>
+<span class="sd">			Vector: resulting vector</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid axes&quot;</span><span class="p">)</span>
+
+		<span class="n">axis</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+		<span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">Vector</span><span class="o">.</span><span class="n">from_coords</span><span class="p">(</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
+		<span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">Vector</span><span class="o">.</span><span class="n">from_coords</span><span class="p">(</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="p">)</span>			
+		<span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">Vector</span><span class="o">.</span><span class="n">from_coords</span><span class="p">(</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="p">)</span>
+
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid axes&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vector.copy"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.copy">[docs]</a>	<span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Creates a copy of itself</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Vector: resulting vector object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">Vector</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">tuple</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Vector.equals"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.equals">[docs]</a>	<span class="k">def</span> <span class="nf">equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Verifies if a vector is identical with the given one</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			v (Vector): vector to verify equality with</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			bool: **True** if equal, **False** otherwise</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuple</span><span class="p">()</span> <span class="o">==</span> <span class="n">v</span><span class="o">.</span><span class="n">tuple</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Vector.round"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.round">[docs]</a>	<span class="k">def</span> <span class="nf">round</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">digits</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Rounds the values of **i**, **j** and **k** with a given precision</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			digits (int, optional): number of digits to round to, defaults to 5.</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Vector: resulting vector object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">Vector</span><span class="p">(</span>
+			<span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">digits</span><span class="p">),</span> 
+			<span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="n">digits</span><span class="p">),</span>
+			<span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">digits</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Vector.numpy"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.numpy">[docs]</a>	<span class="k">def</span> <span class="nf">numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns the corresponding numpy array for this vector</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			numpy.array: corresponding numpy array</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span></div>
+
+<div class="viewcode-block" id="Vector.dot"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.dot">[docs]</a>	<span class="k">def</span> <span class="nf">dot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">v</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Calculates the dot product of a vector with a given one</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			v (Vector): dot product argument</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Vector: resulting vector object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">matrix</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Vector.mul"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.mul">[docs]</a>	<span class="k">def</span> <span class="nf">mul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">v</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Multiplies a vector with a scalar value</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			v (float, int): scalar value to multiply by</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Vector: resulting vector object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">Vector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">*</span> <span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">*</span> <span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">*</span> <span class="n">v</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vector.div"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.div">[docs]</a>	<span class="k">def</span> <span class="nf">div</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">v</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Divides a vector by a scalar value</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			v (float, int): scalar value to divide by</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Vector: resulting vector object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">Vector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">/</span> <span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">/</span> <span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">v</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vector.norm"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.norm">[docs]</a>	<span class="k">def</span> <span class="nf">norm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Calculates the length of the vector</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			float: length of vector</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vector.unit"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.unit">[docs]</a>	<span class="k">def</span> <span class="nf">unit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns the unit vector corresponding to this vector</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Vector: resulting vector object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">Vector</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span> <span class="o">/</span> <span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Vector.invert"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.invert">[docs]</a>	<span class="k">def</span> <span class="nf">invert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns a vector pointing in the opposite direction</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Vector: resulting vector object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">Vector</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vector.tuple"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.tuple">[docs]</a>	<span class="k">def</span> <span class="nf">tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; convers a vector to a tuple &quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Vector.angle"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.angle">[docs]</a>	<span class="k">def</span> <span class="nf">angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Calculates the angle in radians, between this vector and the </span>
+<span class="sd">		one passed as argument</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			vector (Vector): argument vector</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			float: angle measured in radians</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span> <span class="o">=</span> <span class="n">vector</span><span class="o">.</span><span class="n">tuple</span><span class="p">()</span>
+		<span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuple</span><span class="p">()</span>
+
+		<span class="n">n1n2</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">j</span> <span class="o">+</span> <span class="n">z</span><span class="o">*</span><span class="n">k</span><span class="p">)</span>
+		<span class="n">n1</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">y</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">z</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+		<span class="n">n2</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">i</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">j</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">k</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">n1n2</span> <span class="o">/</span> <span class="p">(</span><span class="n">n1</span> <span class="o">*</span> <span class="n">n2</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Vector.rotate_by_vector"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.rotate_by_vector">[docs]</a>	<span class="k">def</span> <span class="nf">rotate_by_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Construct a vector that represents the current one rotated around a </span>
+<span class="sd">		given vector</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			vector (Vector): pivot vector to perform rotation about</span>
+<span class="sd">			angle (float): angle measured in radians</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Vector: rotated vector object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="n">cos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+		<span class="n">sin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+
+		<span class="n">ux</span><span class="p">,</span><span class="n">uy</span><span class="p">,</span><span class="n">uz</span> <span class="o">=</span> <span class="n">vector</span><span class="o">.</span><span class="n">unit</span><span class="p">()</span>
+		<span class="n">u2x</span><span class="p">,</span><span class="n">u2y</span><span class="p">,</span><span class="n">u2z</span> <span class="o">=</span> <span class="n">ux</span> <span class="o">*</span> <span class="n">ux</span><span class="p">,</span> <span class="n">uy</span> <span class="o">*</span> <span class="n">uy</span><span class="p">,</span> <span class="n">uz</span> <span class="o">*</span> <span class="n">uz</span>
+
+		<span class="n">rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+				<span class="p">[</span> 
+					<span class="n">cos</span> <span class="o">+</span> <span class="n">u2x</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">cos</span><span class="p">)</span>           <span class="p">,</span> 
+				  	<span class="n">ux</span>  <span class="o">*</span>  <span class="n">uy</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">cos</span><span class="p">)</span> <span class="o">-</span> <span class="n">uz</span> <span class="o">*</span> <span class="n">sin</span><span class="p">,</span> 
+				  	<span class="n">ux</span>  <span class="o">*</span>  <span class="n">uz</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">cos</span><span class="p">)</span> <span class="o">+</span> <span class="n">uy</span> <span class="o">*</span> <span class="n">sin</span>
+				<span class="p">],</span>
+				<span class="p">[</span>   
+					<span class="n">uy</span> <span class="o">*</span> <span class="n">ux</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">cos</span><span class="p">)</span> <span class="o">+</span> <span class="n">uz</span> <span class="o">*</span> <span class="n">sin</span>   <span class="p">,</span> 
+					<span class="n">cos</span> <span class="o">+</span> <span class="n">u2y</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">cos</span><span class="p">)</span>            <span class="p">,</span> 
+					<span class="n">uy</span>  <span class="o">*</span>  <span class="n">uz</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">cos</span><span class="p">)</span> <span class="o">-</span> <span class="n">ux</span> <span class="o">*</span> <span class="n">sin</span> 
+				<span class="p">],</span>
+				<span class="p">[</span>   
+					<span class="n">uz</span> <span class="o">*</span> <span class="n">ux</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">cos</span><span class="p">)</span> <span class="o">-</span> <span class="n">uy</span> <span class="o">*</span> <span class="n">sin</span><span class="p">,</span> 
+					<span class="n">uz</span>  <span class="o">*</span>  <span class="n">uy</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">cos</span><span class="p">)</span> <span class="o">+</span> <span class="n">ux</span> <span class="o">*</span> <span class="n">sin</span> <span class="p">,</span> 
+					<span class="n">cos</span> <span class="o">+</span> <span class="n">u2z</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">cos</span><span class="p">)</span> 
+				<span class="p">]</span>
+			<span class="p">])</span>
+
+		<span class="k">return</span> <span class="n">vector</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rotation</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vector.rotate_by_axis"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.rotate_by_axis">[docs]</a>	<span class="k">def</span> <span class="nf">rotate_by_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Construct a vector that represents the current one rotated about</span>
+<span class="sd">		a given axis </span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			axis (str): axis name definition (&quot;x&quot;, &quot;y&quot; or &quot;z&quot;)</span>
+<span class="sd">			angle (float): angle measured in radians</span>
+<span class="sd">		</span>
+<span class="sd">		Raises:</span>
+<span class="sd">			ValueError: if an invalid axis name is passed</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Vector: rotated vector object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">cos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+		<span class="n">sin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+
+		<span class="c1"># get rotation matrix</span>
+		<span class="n">axis</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+		<span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span>
+			<span class="n">rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+					<span class="p">[</span> <span class="n">cos</span><span class="p">,</span> <span class="o">-</span><span class="n">sin</span><span class="p">,</span> <span class="mi">0</span> <span class="p">],</span>
+					<span class="p">[</span> <span class="n">sin</span><span class="p">,</span>  <span class="n">cos</span><span class="p">,</span> <span class="mi">0</span> <span class="p">],</span>
+					<span class="p">[</span>   <span class="mi">0</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="p">]</span>
+				<span class="p">])</span>
+		<span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+			<span class="n">rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+					<span class="p">[</span> <span class="n">cos</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sin</span> <span class="p">],</span>
+					<span class="p">[</span>   <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>   <span class="mi">0</span> <span class="p">],</span>
+					<span class="p">[</span><span class="o">-</span><span class="n">sin</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">cos</span> <span class="p">]</span>
+				<span class="p">])</span>
+		<span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
+			<span class="n">rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+					<span class="p">[</span> <span class="mi">1</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span>    <span class="mi">0</span> <span class="p">],</span>
+					<span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="o">-</span><span class="n">sin</span> <span class="p">],</span>
+					<span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sin</span><span class="p">,</span>  <span class="n">cos</span> <span class="p">]</span>
+				<span class="p">])</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid axis given &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">axis</span><span class="p">))</span>
+
+		<span class="k">return</span> <span class="n">Vector</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">rotation</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Vector.rotate"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Vector.rotate">[docs]</a>	<span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">by</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Wrapper function to construct rotated vectors, transparently using</span>
+<span class="sd">		**dicom3d.Vector.rotate_by_axis** or **dicom3d.Vector.rotate_by_vector**,</span>
+<span class="sd">		depending on the arguments given.</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			by (str, Vector): axis definition (&quot;x&quot;, &quot;y&quot; or &quot;z&quot;) or vector object </span>
+<span class="sd">			angle (float): angle measured in radians</span>
+<span class="sd">		</span>
+<span class="sd">		Raises:</span>
+<span class="sd">			ValueError: if an invalid axis name is passed as argument</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Vector: rotated vector object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">by</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotate_by_axis</span><span class="p">(</span><span class="n">by</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">by</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Vector</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotate_by_vector</span><span class="p">(</span><span class="n">by</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span> 
+
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid vector rotation arguments&quot;</span><span class="p">)</span></div>
+
+	<span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="mi">3</span>
+
+	<span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">item</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+	<span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+			<span class="k">yield</span> <span class="n">i</span>
+
+	<span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tuple</span><span class="p">()</span>
+		<span class="k">return</span> <span class="s2">&quot;i:</span><span class="si">%.2f</span><span class="s2"> j:</span><span class="si">%.2f</span><span class="s2"> k:</span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Plane"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Plane">[docs]</a><span class="k">class</span> <span class="nc">Plane</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		This class provides support for the mathematical operations</span>
+<span class="sd">		required to construct and manipulate planes</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">normal</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">d</span>
+
+	<span class="c1"># PROPERTIES #</span>
+	<span class="k">def</span> <span class="nf">_geta</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">i</span>
+	<span class="k">def</span> <span class="nf">_getb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">j</span>
+	<span class="k">def</span> <span class="nf">_getc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">k</span>
+	<span class="k">def</span> <span class="nf">_seta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">v</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="n">v</span>
+	<span class="k">def</span> <span class="nf">_setb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">v</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="n">v</span>
+	<span class="k">def</span> <span class="nf">_setc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">v</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">v</span>
+
+	<span class="n">a</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_geta</span><span class="p">,</span> <span class="n">_seta</span><span class="p">)</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	For a plane described by equation &#39;ax + by + cx = d&#39;, this property </span>
+<span class="sd">	modifies the &#39;a&#39; component of the plane</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">b</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_getb</span><span class="p">,</span> <span class="n">_setb</span><span class="p">)</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	For a plane described by equation &#39;ax + by + cx = d&#39;, this property </span>
+<span class="sd">	modifies the &#39;b&#39; component of the plane</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">c</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_getc</span><span class="p">,</span> <span class="n">_setc</span><span class="p">)</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	For a plane described by equation &#39;ax + by + cx = d&#39;, this property </span>
+<span class="sd">	modifies the &#39;c&#39; component of the plane</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Plane.from_coords"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Plane.from_coords">[docs]</a>	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">from_coords</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Constructs a plane from a vector described by two points in space</span>
+<span class="sd">		</span>
+<span class="sd">		Note:</span>
+<span class="sd">			The resulted plane&#39;s normal vector will be trimmed to be a unit</span>
+<span class="sd">			vector</span>
+
+<span class="sd">		Args:</span>
+<span class="sd">			origin (tuple, Point): source or origin point </span>
+<span class="sd">			target (tuple, Point): target or end point</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Plane: resulting plane object</span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; plane1 = Plane.from_axes(&quot;xz&quot;)</span>
+<span class="sd">			&gt;&gt;&gt; plane2 = Plane.from_coords((0,0,0),(0,1,0))</span>
+<span class="sd">			&gt;&gt;&gt; plane1.equals(plane2)</span>
+<span class="sd">			True</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">xo</span><span class="p">,</span><span class="n">yo</span><span class="p">,</span><span class="n">zo</span> <span class="o">=</span> <span class="n">origin</span>
+		<span class="n">xt</span><span class="p">,</span><span class="n">yt</span><span class="p">,</span><span class="n">zt</span> <span class="o">=</span> <span class="n">target</span>
+
+		<span class="n">n</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="n">xt</span><span class="o">-</span><span class="n">xo</span><span class="p">,</span> <span class="n">yt</span><span class="o">-</span><span class="n">yo</span><span class="p">,</span> <span class="n">zt</span><span class="o">-</span><span class="n">zo</span><span class="p">)</span><span class="o">.</span><span class="n">unit</span><span class="p">()</span>
+		<span class="k">return</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_normal</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">i</span><span class="o">*</span><span class="n">xo</span> <span class="o">+</span> <span class="n">n</span><span class="o">.</span><span class="n">j</span><span class="o">*</span><span class="n">yo</span> <span class="o">+</span> <span class="n">n</span><span class="o">.</span><span class="n">k</span><span class="o">*</span><span class="n">zo</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Plane.from_normal"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Plane.from_normal">[docs]</a>	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">from_normal</span><span class="p">(</span><span class="n">normal</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Constructs a plane from a normal vector and the **d** component.</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			normal (Vector): normal vector</span>
+<span class="sd">			d (int, optional): **d** component of the plane, defaults to 0.</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Plane: resulting plane object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">Plane</span><span class="p">(</span><span class="o">*</span><span class="n">normal</span><span class="o">.</span><span class="n">tuple</span><span class="p">(),</span> <span class="n">d</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Plane.from_axes"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Plane.from_axes">[docs]</a>	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">from_axes</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Constructs a vector from two axis</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			axes (str): string defining the two axis (&quot;xy&quot;,&quot;xz&quot; or &quot;yz&quot;)</span>
+<span class="sd">		</span>
+<span class="sd">		Raises:</span>
+<span class="sd">			ValueError: on invalid axis definition</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Plane: resulting plane object</span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; oxy = Plane.from_axes(&quot;xy&quot;)</span>
+<span class="sd">			&gt;&gt;&gt; oxz = Plane.from_axes(&quot;xz&quot;)</span>
+<span class="sd">			&gt;&gt;&gt; oyz = Plane.from_axes(&quot;yz&quot;)</span>
+<span class="sd">			&gt;&gt;&gt; degrees(oxz.angle(oxy))</span>
+<span class="sd">			90.0</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;too many axes&quot;</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="s2">&quot;x&quot;</span> <span class="ow">in</span> <span class="n">axes</span> <span class="ow">and</span> <span class="s2">&quot;y&quot;</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_normal</span><span class="p">(</span><span class="n">Vector</span><span class="o">.</span><span class="n">from_axis</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">),</span><span class="mi">0</span><span class="p">)</span>
+		<span class="k">if</span> <span class="s2">&quot;x&quot;</span> <span class="ow">in</span> <span class="n">axes</span> <span class="ow">and</span> <span class="s2">&quot;z&quot;</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_normal</span><span class="p">(</span><span class="n">Vector</span><span class="o">.</span><span class="n">from_axis</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">),</span><span class="mi">0</span><span class="p">)</span>	
+		<span class="k">if</span> <span class="s2">&quot;y&quot;</span> <span class="ow">in</span> <span class="n">axes</span> <span class="ow">and</span> <span class="s2">&quot;z&quot;</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_normal</span><span class="p">(</span><span class="n">Vector</span><span class="o">.</span><span class="n">from_axis</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">),</span><span class="mi">0</span><span class="p">)</span>
+
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid axes&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Plane.copy"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Plane.copy">[docs]</a>	<span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Creates a copy of itself</span>
+
+<span class="sd">		Returns:</span>
+<span class="sd">			Plane: resulting plane object</span>
+<span class="sd">		&quot;&quot;&quot;</span>	
+		<span class="k">return</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_normal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Plane.equals"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Plane.equals">[docs]</a>	<span class="k">def</span> <span class="nf">equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Checks if a plane is equal to another</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			p (Plane): argument plane to check equality</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			bool: **True** if equation is equal or **False** otherwise</span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; plane1 = Plane.from_axes(&quot;xy&quot;)</span>
+<span class="sd">			&gt;&gt;&gt; plane2 = Plane.from_coords((0,0,0), (0,0,1))</span>
+<span class="sd">			&gt;&gt;&gt; plane2.equals(plane1)</span>
+<span class="sd">			True</span>
+<span class="sd">			&gt;&gt;&gt; plane2.equals(plane1.move((0,0,1)))</span>
+<span class="sd">			False</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">d</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Plane.round"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Plane.round">[docs]</a>	<span class="k">def</span> <span class="nf">round</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">digits</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Rounds the **a**, **b**, **c** and **d** components of the plane</span>
+<span class="sd">		and returns the resulting plane object</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			digits (int, optional): number of digits to round to, defaults to 5</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Plane: resulting plane object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">Plane</span><span class="o">.</span><span class="n">from_normal</span><span class="p">(</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">digits</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">,</span> <span class="n">digits</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Plane.rotate"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Plane.rotate">[docs]</a>	<span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">by</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns a plane from the current one, with the normal vector </span>
+<span class="sd">		rotated about an axis or another vector, by a given angle.</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			by (str,Vector): axis definition (&quot;x&quot;,&quot;y&quot; or &quot;z&quot;) or vector object </span>
+<span class="sd">			angle (float): angle measured in radians</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Plane: resulting plane object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">p</span> <span class="o">=</span> <span class="n">Plane</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">tuple</span><span class="p">(),</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">)</span>
+		<span class="n">p</span><span class="o">.</span><span class="n">normal</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">by</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">p</span></div>
+
+<div class="viewcode-block" id="Plane.move"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Plane.move">[docs]</a>	<span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns a plane from the current one, translated to a given point</span>
+<span class="sd">		</span>
+<span class="sd">		Note: </span>
+<span class="sd">			This function will modify only the **d** component of the plane</span>
+
+<span class="sd">		Args:</span>
+<span class="sd">			point (tuple, Point): point to translate plane to </span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Plane: resulting plane object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="n">point</span>
+		<span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">tuple</span><span class="p">()</span>
+		<span class="n">d</span> <span class="o">=</span> <span class="n">a</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">c</span><span class="o">*</span><span class="n">z</span>
+		<span class="k">return</span> <span class="n">Plane</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Plane.parallel"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Plane.parallel">[docs]</a>	<span class="k">def</span> <span class="nf">parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">tolerance</span> <span class="o">=</span> <span class="mf">1.e-4</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Checks if this plane is parallel to a given one within a given range</span>
+<span class="sd">		of tolerance</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			p (Plane): plane argument to check parallelism</span>
+<span class="sd">			tolerance (float, optional): tolerance value, defaults to 1.e-4</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			bool: **True** if parallel or **False** otherwise</span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; plane1 = Plnae.from_axes(&quot;xy&quot;) # OXY plane</span>
+<span class="sd">			&gt;&gt;&gt; plane2 = plane1.move((0,0,10)) # move plane to this point</span>
+<span class="sd">			&gt;&gt;&gt; plane1</span>
+<span class="sd">			0.00X + 0.00Y + 1.00Z = 0.00</span>
+<span class="sd">			&gt;&gt;&gt; plane2</span>
+<span class="sd">			0.00X + 0.00Y + 1.00Z = 10.00</span>
+<span class="sd">			&gt;&gt;&gt; plane1.parallel(plane2)</span>
+<span class="sd">			True</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tolerance</span></div>
+
+<div class="viewcode-block" id="Plane.resolve"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Plane.resolve">[docs]</a>	<span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Resolves the X,Y or Z component of the given point based on</span>
+<span class="sd">		current plane equation</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			point (tuple, Point): point to resolve</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Point: resulting Point</span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			To find the Z component of a point that lies on the plane</span>
+<span class="sd">			and has only the X and Y components defined:</span>
+
+<span class="sd">			&gt;&gt;&gt; plane = Plane.from_axes(&quot;xy&quot;).rotate(&quot;y&quot;,radians(30))</span>
+<span class="sd">			&gt;&gt;&gt; _,_,z = plane.resolve((10,10,None))</span>
+<span class="sd">			&gt;&gt;&gt; print(&quot;Resolved point is X:10 Y:10 Z:%.2f&quot; % (z))</span>
+<span class="sd">			Resolved point is X:10 Y:10 Z:-5.77</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="n">point</span>
+		<span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">tuple</span><span class="p">()</span>
+		
+		<span class="c1"># x = (d - cz - by)/a</span>
+		<span class="c1"># y = (d - cz - ax)/b</span>
+		<span class="c1"># z = (d - by - ax)/c</span>
+
+		<span class="c1"># resolve for X</span>
+		<span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">a</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">return</span> <span class="n">point</span>			
+			<span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">-</span> <span class="n">c</span> <span class="o">*</span> <span class="n">z</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="n">a</span>
+		<span class="k">elif</span> <span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">return</span> <span class="n">point</span>
+			<span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">-</span> <span class="n">c</span> <span class="o">*</span> <span class="n">z</span> <span class="o">-</span> <span class="n">a</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="n">b</span>
+		<span class="k">elif</span> <span class="n">z</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">return</span> <span class="n">point</span>
+			<span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="n">y</span> <span class="o">-</span> <span class="n">a</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="n">c</span>
+
+		<span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Plane.angle"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Plane.angle">[docs]</a>	<span class="k">def</span> <span class="nf">angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Calculates the angle made by the given plane with another one</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			p (Plane): plane argument to calculate angle with</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			float: resulted angle in radians</span>
+
+<span class="sd">		Note: </span>
+<span class="sd">			This function actually calculates the angle made by the two</span>
+<span class="sd">			plane&#39;s normal vectors</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Plane.intersects"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Plane.intersects">[docs]</a>	<span class="k">def</span> <span class="nf">intersects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Verifies if a given point intersects the current plane</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			point (tuple, Point): point argument to check intersection with</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			bool: **True** if intersects plane or **False** otherwise</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="n">point</span>
+		<span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span>
+		<span class="n">v</span> <span class="o">=</span> <span class="n">a</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">c</span><span class="o">*</span><span class="n">z</span>
+		<span class="k">return</span> <span class="n">v</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span></div>
+
+	<span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">]</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span> <span class="k">yield</span> <span class="n">i</span>
+
+	<span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; prints plane equation&quot;&quot;&quot;</span>
+		<span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span>
+		<span class="k">return</span> <span class="s2">&quot;</span><span class="si">%.2f</span><span class="s2">X + </span><span class="si">%.2f</span><span class="s2">Y + </span><span class="si">%.2f</span><span class="s2">Z = </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+			<span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">)</span></div>
+<span class="c1">#</span>
+<span class="c1"># cartesian mapping utility class</span>
+<span class="c1">#</span>
+<div class="viewcode-block" id="LocalCoordinateSystem"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.LocalCoordinateSystem">[docs]</a><span class="k">class</span> <span class="nc">LocalCoordinateSystem</span><span class="p">():</span>
+
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Class responsible for transforming local coordinates in a cartesian space</span>
+<span class="sd">		to world three dimensional coordinations. A *Local Coordinate System* is</span>
+<span class="sd">		defined by two axis vectors (one describing the X axis, the other one the Y</span>
+<span class="sd">		axis in the cartesian bi-dimensional space) and an origin for the (0,0)</span>
+<span class="sd">		point.</span>
+
+<span class="sd">		The scaling factor is optional, but useful when the world you are mapping</span>
+<span class="sd">		to has a different density than the local cartesian system you are using.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">x_vector</span><span class="p">,</span> <span class="n">y_vector</span><span class="p">,</span> <span class="n">scaling</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)):</span>
+		<span class="sd">&quot;&quot;&quot; construct a local coordinate system from X,Y vectors, origin</span>
+<span class="sd">			and a scaling factor &quot;&quot;&quot;</span>
+
+		<span class="c1"># unwrap tuples into numpy array</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">origin</span>   <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="o">*</span><span class="n">origin</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">x_vector</span> <span class="o">=</span> <span class="n">x_vector</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">y_vector</span> <span class="o">=</span> <span class="n">y_vector</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">scaling</span>  <span class="o">=</span> <span class="n">scaling</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+<div class="viewcode-block" id="LocalCoordinateSystem.copy"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.LocalCoordinateSystem.copy">[docs]</a>	<span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Creates a copy of itself</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			LocalCoordinateSystem: resulting coordinate system</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">LocalCoordinateSystem</span><span class="p">(</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">origin</span><span class="p">,</span> 
+			<span class="bp">self</span><span class="o">.</span><span class="n">x_vector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_vector</span><span class="p">,</span> 
+			<span class="bp">self</span><span class="o">.</span><span class="n">scaling</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="LocalCoordinateSystem.update"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.LocalCoordinateSystem.update">[docs]</a>	<span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		For each direct modification made to this coordinate system, a call </span>
+<span class="sd">		to this function is required to update the transformation matrix </span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			Assuming you decide to set a new origin point:</span>
+
+<span class="sd">			&gt;&gt;&gt; lcs = LocalCoordinateSystem(</span>
+<span class="sd">					Vector.from_axis(&quot;x), </span>
+<span class="sd">					Vector.from_axis(&quot;y&quot;), </span>
+<span class="sd">					Point(0,0,0))</span>
+<span class="sd">			&gt;&gt;&gt; lcs.origin = Point(10,10,0)</span>
+<span class="sd">			&gt;&gt;&gt; lcs.update()</span>
+<span class="sd">			&gt;&gt;&gt; # now you can safely transform from and to cartesian space</span>
+<span class="sd">			&gt;&gt;&gt; pt = lcs.to_world(0,0)</span>
+<span class="sd">			&gt;&gt;&gt; print(&quot;Origin:&quot;, pt)</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># unwrap into discreete numbers</span>
+		<span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="n">sz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin</span>
+		<span class="n">xx</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">xz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_vector</span><span class="o">.</span><span class="n">tuple</span><span class="p">()</span>
+		<span class="n">yx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">yz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_vector</span><span class="o">.</span><span class="n">tuple</span><span class="p">()</span>
+		<span class="n">pi</span><span class="p">,</span> <span class="n">pj</span>     <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaling</span>
+
+		<span class="c1"># transformation matrix</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+				<span class="p">[</span><span class="n">xx</span> <span class="o">*</span> <span class="n">pi</span><span class="p">,</span> <span class="n">yx</span> <span class="o">*</span> <span class="n">pj</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sx</span><span class="p">],</span>
+				<span class="p">[</span><span class="n">xy</span> <span class="o">*</span> <span class="n">pi</span><span class="p">,</span> <span class="n">yy</span> <span class="o">*</span> <span class="n">pj</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sy</span><span class="p">],</span>
+				<span class="p">[</span><span class="n">xz</span> <span class="o">*</span> <span class="n">pi</span><span class="p">,</span> <span class="n">yz</span> <span class="o">*</span> <span class="n">pj</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sz</span><span class="p">],</span>
+				<span class="p">[</span>      <span class="mi">0</span><span class="p">,</span>       <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">]</span>
+			<span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="LocalCoordinateSystem.to_local"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.LocalCoordinateSystem.to_local">[docs]</a>	<span class="k">def</span> <span class="nf">to_local</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Transforms the givel world three dimensional coordinates to local </span>
+<span class="sd">		cartesian coordinates</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			coords (Point, tuple): world three dimensional coordinates</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			tuple: tuple of the resulting cartesian coordinates in **float** </span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">*</span><span class="n">coords</span><span class="p">])</span>
+		<span class="n">origin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">origin</span><span class="p">])</span>
+
+		<span class="c1"># substract origin -&gt; translate</span>
+		<span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span> <span class="o">-</span> <span class="n">origin</span>
+		<span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaling</span>
+
+		<span class="c1"># rotate</span>
+		<span class="n">x</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_vector</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+		<span class="n">y</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_vector</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+
+		<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">dx</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">dy</span>
+		<span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LocalCoordinateSystem.to_world"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.LocalCoordinateSystem.to_world">[docs]</a>	<span class="k">def</span> <span class="nf">to_world</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Transform local cartesian coordinates (**x** and **y**) to three </span>
+<span class="sd">		dimesnional world coordinates</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			x (float, int): value of cartesian **x** coordinate</span>
+<span class="sd">			y (float, int): value of cartesian **y** coordinate</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Point: point object describing resulting coordinates</span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; transform = section.transfrom</span>
+<span class="sd">			&gt;&gt;&gt; transform.to_world(0,0)</span>
+<span class="sd">			x:-73.91 y:-81.20 z:6.64</span>
+<span class="sd">			&gt;&gt;&gt; transform.to_world(10,10)</span>
+<span class="sd">			x:-70.78 y:-78.08 z:6.6</span>
+<span class="sd">			&gt;&gt;&gt; dist = transform.to_world(10,10).distance( transform.to_world(0,0) )</span>
+<span class="sd">			&gt;&gt;&gt; print(&quot;From (0,0) to (10,10) distance is: %.1f mm&quot; % (dist))</span>
+<span class="sd">			From (0,0) to (10,10) distance is: 4.4 mm</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="c1"># multiply with transformation matrix</span>
+		<span class="n">imatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">])</span>
+		<span class="n">rmatrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">imatrix</span><span class="p">)</span>
+
+		<span class="c1"># extract response		</span>
+		<span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">rmatrix</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LocalCoordinateSystem.measure"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.LocalCoordinateSystem.measure">[docs]</a>	<span class="k">def</span> <span class="nf">measure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point_from</span><span class="p">,</span> <span class="n">point_to</span><span class="p">):</span>
+
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Measures the distance from **point_from** to **point_to** in world coordinates </span>
+<span class="sd">		or local coordinates. </span>
+<span class="sd">		</span>
+<span class="sd">		When measuring for local cartesian coordinates the result will be the distance </span>
+<span class="sd">		from the coresponding transformed world coordindates and viceversa. When </span>
+<span class="sd">		measuring distance for world coordinates, the result will be the distance</span>
+<span class="sd">		in local coordinates.</span>
+<span class="sd">		</span>
+<span class="sd">		Raises:</span>
+<span class="sd">			ValueError: inconsistent dimensions given (e.g. 2D point paired with 3D point)</span>
+<span class="sd">			ValueError: invalid input (e.g. not a 2D point nor 3D point)</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			float: measured distance in local or world coordinates </span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; # asuming we have a *dicom3d.Dataset* object</span>
+<span class="sd">			&gt;&gt;&gt; pt1, pt2 = dataset.to_mm(0,0), dataset.to_mm(10,10)</span>
+<span class="sd">			&gt;&gt;&gt; # this will measure the distance in mm between the two points</span>
+<span class="sd">			&gt;&gt;&gt; pt1.distance(pt2)</span>
+<span class="sd">			4.419417382415922</span>
+<span class="sd">			&gt;&gt;&gt; # which is ecquivalent with this short form</span>
+<span class="sd">			&gt;&gt;&gt; dataset.transform.measure((0,0),(10,10))</span>
+<span class="sd">			4.419417382415922</span>
+<span class="sd">			&gt;&gt;&gt; # for measuring the opposite, distance in pixels</span>
+<span class="sd">			&gt;&gt;&gt; # for the segment defined by the two points</span>
+<span class="sd">			&gt;&gt;&gt; dataset.transform.measure(pt1,pt2)</span>
+<span class="sd">			14.142135623730951</span>
+<span class="sd">			&gt;&gt;&gt; # which is equivalent to how we calculate the diagonal</span>
+<span class="sd">			&gt;&gt;&gt; # if we knew the corresponding local points </span>
+<span class="sd">			&gt;&gt;&gt; np.sqrt(10**2 + 10**2)</span>
+<span class="sd">			14.142135623730951</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">point_from</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">point_to</span><span class="p">):</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;inconsistent dimensions for measuring distance (</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span>
+				<span class="n">point_from</span><span class="p">,</span> <span class="n">point_to</span><span class="p">))</span>
+
+		<span class="c1"># points are in local space =&gt; measure world distance</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">point_from</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+			<span class="n">xs</span><span class="p">,</span> <span class="n">ys</span> <span class="o">=</span> <span class="n">point_from</span>
+			<span class="n">xe</span><span class="p">,</span> <span class="n">ye</span> <span class="o">=</span> <span class="n">point_to</span>
+			<span class="n">pts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_world</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span><span class="n">ys</span><span class="p">)</span>
+			<span class="n">pte</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_world</span><span class="p">(</span><span class="n">xe</span><span class="p">,</span><span class="n">ye</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">pts</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">pte</span><span class="p">)</span>
+
+		<span class="c1"># points are in world space =&gt; measure local distance</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">point_from</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+			<span class="n">xs</span><span class="p">,</span> <span class="n">ys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_local</span><span class="p">(</span><span class="n">point_from</span><span class="p">)</span>
+			<span class="n">xe</span><span class="p">,</span> <span class="n">ye</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_local</span><span class="p">(</span><span class="n">point_to</span><span class="p">)</span>
+			<span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="p">(</span><span class="n">xe</span><span class="o">-</span><span class="n">xs</span><span class="p">),(</span><span class="n">ye</span><span class="o">-</span><span class="n">ys</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dx</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">dy</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid input for measuring distance (</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span>
+			<span class="n">point_from</span><span class="p">,</span> <span class="n">point_to</span><span class="p">))</span></div>
+		
+
+<div class="viewcode-block" id="LocalCoordinateSystem.rotate"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.LocalCoordinateSystem.rotate">[docs]</a>	<span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">by</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Rotates this coordinate system X and Y axes about a vector or an axis </span>
+<span class="sd">		and returns the newly modified coordinate system</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			by (str, Vector): axis definition (&quot;x&quot;, &quot;y&quot; or &quot;z&quot;) or vector object </span>
+<span class="sd">			angle (float): angle measured in radians</span>
+
+<span class="sd">		Returns:</span>
+<span class="sd">			LocalCoordinateSystem: the rotated coordinate system</span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; section.transform.x_vector</span>
+<span class="sd">			i:1.00 j:0.00 k:0.00</span>
+<span class="sd">			&gt;&gt;&gt; section.transform.rotate(&quot;z&quot;,radians(45)).x_vector</span>
+<span class="sd">			i:0.71 j:0.71 k:0.00</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">lcs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+		<span class="c1"># rotate LCS and update</span>
+		<span class="n">lcs</span><span class="o">.</span><span class="n">x_vector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_vector</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">by</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+		<span class="n">lcs</span><span class="o">.</span><span class="n">y_vector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_vector</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">by</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+		<span class="n">lcs</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+		<span class="k">return</span> <span class="n">lcs</span></div>
+
+<div class="viewcode-block" id="LocalCoordinateSystem.move"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.LocalCoordinateSystem.move">[docs]</a>	<span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">by</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Translate this local coordinate system&#39;s origin by moving it</span>
+<span class="sd">		along a given vector and by a given distance</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			by (str, Vector): axis name (&quot;x&quot;, &quot;y&quot; or &quot;z&quot;) or vector object describing direction of translation </span>
+<span class="sd">			distance (float): value describing distance</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			LocalCoordinateSystem: the translated coordinate system</span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; section.transform.origin</span>
+<span class="sd">			x:-73.91 y:-81.20 z:6.64</span>
+<span class="sd">			&gt;&gt;&gt; # move on the x axis 10 mm</span>
+<span class="sd">			&gt;&gt;&gt; section.tranform.move(&quot;x&quot;, 10.0).origin</span>
+<span class="sd">			x:-63.91 y:-81.20 z:6.64</span>
+<span class="sd">			&gt;&gt;&gt; # move on XY diagonal</span>
+<span class="sd">			&gt;&gt;&gt; vector = Vector.from_axis(&quot;x&quot;).rotate(&quot;z&quot;, radians(45))</span>
+<span class="sd">			&gt;&gt;&gt; section.transform.move(vector, 10.0).origin</span>
+<span class="sd">			x:-66.84 y:-74.13 z:6.64</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">lcs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+		<span class="c1"># move origin and update</span>
+		<span class="n">lcs</span><span class="o">.</span><span class="n">origin</span> <span class="o">=</span> <span class="n">lcs</span><span class="o">.</span><span class="n">origin</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">by</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+		<span class="n">lcs</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+		<span class="k">return</span> <span class="n">lcs</span></div>
+
+<div class="viewcode-block" id="LocalCoordinateSystem.scale"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.LocalCoordinateSystem.scale">[docs]</a>	<span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">by</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Modify the scaling factor of the current coordinate system and construct</span>
+<span class="sd">		another one with the resulting scaling factor</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			by (float, tuple): value or tuple of values describing the scaling factor</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			LocalCoordinateSystem: the scaled coordinate system</span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; transform1 = section.transform.copy()</span>
+<span class="sd">			&gt;&gt;&gt; transform2 = transform.scale(1/2)</span>
+<span class="sd">			&gt;&gt;&gt; dist1 = transform1.to_world(0,0).distance(transform1.to_world(10,10))</span>
+<span class="sd">			&gt;&gt;&gt; dist2 = transform2.to_world(0,0).distance(transform2.to_world(10,10))</span>
+<span class="sd">			&gt;&gt;&gt; print(&quot;Distance before scale: %.1f after: %.1f&quot; % (dist1, dist2))</span>
+<span class="sd">			Distance before scale: 4.4 after: 2.2</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">lcs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+		<span class="n">dx</span><span class="p">,</span><span class="n">dy</span> <span class="o">=</span> <span class="n">lcs</span><span class="o">.</span><span class="n">scaling</span>
+
+		<span class="c1"># if factor is tuple</span>
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">by</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+			<span class="n">by_x</span><span class="p">,</span> <span class="n">by_y</span> <span class="o">=</span> <span class="n">by</span>
+			<span class="n">lcs</span><span class="o">.</span><span class="n">scaling</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">dx</span> <span class="o">*</span> <span class="n">by_x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">dy</span> <span class="o">*</span> <span class="n">by_y</span><span class="p">)</span>
+		<span class="c1"># if factor is float or integer</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">lcs</span><span class="o">.</span><span class="n">scaling</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">dx</span> <span class="o">*</span> <span class="n">by</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">dy</span> <span class="o">*</span> <span class="n">by</span><span class="p">)</span>
+		
+		<span class="n">lcs</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+		<span class="k">return</span> <span class="n">lcs</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">dicom3d  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Bitdefender LLC.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,291 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dicom3d.dicomdir &#8212; dicom3d  documentation</title>
+    <link rel="stylesheet" href="../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">dicom3d  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for dicom3d.dicomdir</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pydicom</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<div class="viewcode-block" id="DiicomDir"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.dicomdir.DiicomDir">[docs]</a><span class="k">class</span> <span class="nc">DiicomDir</span><span class="p">():</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">records</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">all_studies</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">all_series</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ignore_entries_without_pixel_spacing</span> <span class="o">=</span> <span class="kc">True</span>
+
+	<span class="k">def</span> <span class="nf">_check_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+
+		<span class="c1"># for each attribute</span>
+		<span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+			<span class="c1"># check if entity has the attribute</span>
+			<span class="n">v</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+				<span class="k">return</span> <span class="kc">False</span>
+
+			<span class="c1"># check if values are identical</span>
+			<span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">v</span><span class="p">:</span>
+				<span class="k">return</span> <span class="kc">False</span>
+
+		<span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="DiicomDir.find_records"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.dicomdir.DiicomDir.find_records">[docs]</a>	<span class="k">def</span> <span class="nf">find_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; finds records based on a dictionary of attributes &quot;&quot;&quot;</span>
+		<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">records</span><span class="p">:</span>
+			<span class="n">recordobj</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;record&quot;</span><span class="p">)</span>		
+
+			<span class="c1"># filter records</span>
+			<span class="k">if</span> <span class="n">attrs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_attributes</span><span class="p">(</span><span class="n">recordobj</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span> 
+				<span class="k">continue</span>
+			<span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="DiicomDir.find_studies"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.dicomdir.DiicomDir.find_studies">[docs]</a>	<span class="k">def</span> <span class="nf">find_studies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; finds studies based on a dictionary of attributes, from a list of given records &quot;&quot;&quot;</span>
+		<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">study</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;studies&quot;</span><span class="p">):</span>
+
+				<span class="c1"># filter studies</span>
+				<span class="n">studyobj</span> <span class="o">=</span> <span class="n">study</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;study&quot;</span><span class="p">)</span>
+				<span class="k">if</span> <span class="n">attrs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_attributes</span><span class="p">(</span><span class="n">studyobj</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span> 
+					<span class="k">continue</span>
+
+				<span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">study</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="DiicomDir.find_series"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.dicomdir.DiicomDir.find_series">[docs]</a>	<span class="k">def</span> <span class="nf">find_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">studies</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; finds series based on a dictionary of attributes, from a list of given studies &quot;&quot;&quot;</span>
+		<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="k">for</span> <span class="n">study</span> <span class="ow">in</span> <span class="n">studies</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">series</span> <span class="ow">in</span> <span class="n">study</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;series&quot;</span><span class="p">):</span>
+
+				<span class="c1"># filter series</span>
+				<span class="n">seriesobj</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;series&quot;</span><span class="p">)</span>
+				<span class="k">if</span> <span class="n">attrs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_attributes</span><span class="p">(</span><span class="n">seriesobj</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+					<span class="k">continue</span>
+				<span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="DiicomDir.find"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.dicomdir.DiicomDir.find">[docs]</a>	<span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">study_attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">series_attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; finds records, studies and series based on a set of given attributes for each &quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="n">record_attrs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">records</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_records</span><span class="p">(</span><span class="n">record_attrs</span><span class="p">)</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="k">return</span> <span class="p">[]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">records</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">study_attrs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">studies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_studies</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">study_attrs</span><span class="p">)</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">studies</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> 
+				<span class="k">return</span> <span class="p">[]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">studies</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_studies</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">series_attrs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="n">series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_series</span><span class="p">(</span><span class="n">studies</span><span class="p">,</span> <span class="n">series_attrs</span><span class="p">)</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">series</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="k">return</span> <span class="p">[]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">series</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_series</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">studies</span><span class="p">,</span> <span class="n">series</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DiicomDir.load"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.dicomdir.DiicomDir.load">[docs]</a>	<span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; loads a dicomdir from a given filepath &quot;&quot;&quot;</span>
+
+		<span class="c1"># check if file exists</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Inexistent filepath: &quot;</span> <span class="o">+</span> <span class="n">filepath</span><span class="p">)</span> 
+
+		<span class="n">dicom_dir</span> <span class="o">=</span> <span class="n">pydicom</span><span class="o">.</span><span class="n">filereader</span><span class="o">.</span><span class="n">read_dicomdir</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+		<span class="n">base_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+
+		<span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="c1"># go through the patient record and print information</span>
+		<span class="k">for</span> <span class="n">patient_record</span> <span class="ow">in</span> <span class="n">dicom_dir</span><span class="o">.</span><span class="n">patient_records</span><span class="p">:</span>
+
+			<span class="c1"># add new record</span>
+			<span class="n">record_studies</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="n">record_entry</span> <span class="o">=</span> <span class="p">{</span>
+				<span class="s2">&quot;patient_id&quot;</span>   <span class="p">:</span> <span class="n">patient_record</span><span class="o">.</span><span class="n">PatientID</span>   <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">patient_record</span><span class="p">,</span> <span class="s2">&quot;PatientID&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;N/A&quot;</span><span class="p">,</span>
+				<span class="s2">&quot;patient_name&quot;</span> <span class="p">:</span> <span class="n">patient_record</span><span class="o">.</span><span class="n">PatientName</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">patient_record</span><span class="p">,</span> <span class="s2">&quot;PatientName&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;N/A&quot;</span><span class="p">,</span>
+				<span class="s2">&quot;studies&quot;</span>      <span class="p">:</span> <span class="n">record_studies</span><span class="p">,</span>
+				<span class="s2">&quot;record&quot;</span>	   <span class="p">:</span> <span class="n">patient_record</span>
+			<span class="p">}</span>
+			<span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record_entry</span><span class="p">)</span>
+
+			<span class="c1"># for each stufy</span>
+			<span class="n">studies</span> <span class="o">=</span> <span class="n">patient_record</span><span class="o">.</span><span class="n">children</span>
+			<span class="k">for</span> <span class="n">study</span> <span class="ow">in</span> <span class="n">studies</span><span class="p">:</span>
+				
+				<span class="c1"># add new study</span>
+				<span class="n">study_series</span> <span class="o">=</span> <span class="p">[]</span>
+				<span class="n">study_entry</span> <span class="o">=</span> <span class="p">{</span>
+					<span class="s2">&quot;id&quot;</span>     <span class="p">:</span> <span class="n">study</span><span class="o">.</span><span class="n">StudyID</span>          <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">study</span><span class="p">,</span> <span class="s2">&quot;StudyID&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;N/A&quot;</span><span class="p">,</span>
+					<span class="s2">&quot;date&quot;</span>   <span class="p">:</span> <span class="n">study</span><span class="o">.</span><span class="n">StudyDate</span>        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">study</span><span class="p">,</span> <span class="s2">&quot;StudyDate&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;N/A&quot;</span><span class="p">,</span>
+					<span class="s2">&quot;desc&quot;</span>   <span class="p">:</span> <span class="n">study</span><span class="o">.</span><span class="n">StudyDescription</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">study</span><span class="p">,</span> <span class="s2">&quot;StudyDescription&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;N/A&quot;</span><span class="p">,</span>
+					<span class="s2">&quot;series&quot;</span> <span class="p">:</span> <span class="n">study_series</span><span class="p">,</span>
+					<span class="s2">&quot;study&quot;</span>  <span class="p">:</span> <span class="n">study</span>
+				<span class="p">}</span>
+				<span class="n">record_studies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">study_entry</span><span class="p">)</span>
+
+				<span class="n">all_series</span> <span class="o">=</span> <span class="n">study</span><span class="o">.</span><span class="n">children</span>
+
+				<span class="c1"># go through each series</span>
+				<span class="k">for</span> <span class="n">series</span> <span class="ow">in</span> <span class="n">all_series</span><span class="p">:</span>
+					<span class="n">image_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
+					
+					<span class="c1"># Put N/A in if no Series Description</span>
+					<span class="k">if</span> <span class="s1">&#39;SeriesDescription&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">series</span><span class="p">:</span>
+						<span class="n">series</span><span class="o">.</span><span class="n">SeriesDescription</span> <span class="o">=</span> <span class="s2">&quot;N/A&quot;</span>
+
+					<span class="c1"># add new series</span>
+					<span class="n">series_datasets</span> <span class="o">=</span> <span class="p">[]</span>
+					<span class="n">series_entry</span> <span class="o">=</span> <span class="p">{</span>
+						<span class="s2">&quot;number&quot;</span>  <span class="p">:</span> <span class="n">series</span><span class="o">.</span><span class="n">SeriesNumber</span>      <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="s2">&quot;SeriesNumber&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;N/A&quot;</span><span class="p">,</span>
+						<span class="s2">&quot;desc&quot;</span>    <span class="p">:</span> <span class="n">series</span><span class="o">.</span><span class="n">SeriesDescription</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="s2">&quot;SeriesDescription&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;N/A&quot;</span><span class="p">,</span>
+						<span class="s2">&quot;modality&quot;</span><span class="p">:</span> <span class="n">series</span><span class="o">.</span><span class="n">Modality</span>          <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="s2">&quot;Modality&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;N/A&quot;</span><span class="p">,</span>
+						<span class="s2">&quot;images_count&quot;</span><span class="p">:</span> <span class="n">image_count</span><span class="p">,</span>
+						<span class="s2">&quot;datasets&quot;</span> <span class="p">:</span> <span class="n">series_datasets</span><span class="p">,</span>
+						<span class="s2">&quot;series&quot;</span>   <span class="p">:</span> <span class="n">series</span>
+					<span class="p">}</span>
+					<span class="n">study_series</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">series_entry</span><span class="p">)</span>
+
+					<span class="c1"># open and read each dataset</span>
+					<span class="n">image_records</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">children</span>
+					<span class="n">image_filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="o">*</span><span class="n">image_rec</span><span class="o">.</span><span class="n">ReferencedFileID</span><span class="p">)</span>
+									   <span class="k">for</span> <span class="n">image_rec</span> <span class="ow">in</span> <span class="n">image_records</span><span class="p">]</span>
+
+					<span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">pydicom</span><span class="o">.</span><span class="n">dcmread</span><span class="p">(</span><span class="n">image_filename</span><span class="p">)</span>
+								<span class="k">for</span> <span class="n">image_filename</span> <span class="ow">in</span> <span class="n">image_filenames</span><span class="p">]</span>
+
+					<span class="n">series_datasets</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+
+					<span class="c1"># Don&#39;t load series with datasets that have no pixel spacing</span>
+					<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_entries_without_pixel_spacing</span><span class="p">:</span>
+						<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="s2">&quot;PixelSpacing&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+							<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;warning: ignoring series &#39;</span><span class="si">%s</span><span class="s2">&#39; (</span><span class="si">%s</span><span class="s2">) because datasets have no PixelSpacing attribute&quot;</span> <span class="o">%</span> <span class="p">(</span>
+								<span class="n">series_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;number&quot;</span><span class="p">),</span> <span class="n">series_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;desc&quot;</span><span class="p">))</span> <span class="p">)</span>
+							<span class="n">study_series</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">series_entry</span><span class="p">)</span>
+
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">records</span> 	<span class="o">=</span> <span class="n">records</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">all_studies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_studies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> 
+		<span class="bp">self</span><span class="o">.</span><span class="n">all_series</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_series</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_studies</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+		<span class="k">return</span></div>
+
+<div class="viewcode-block" id="DiicomDir.print"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.dicomdir.DiicomDir.print">[docs]</a>	<span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Prints loaded records, studies and series&quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">records</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No records loaded.&quot;</span><span class="p">)</span>
+			<span class="k">return</span>
+
+		<span class="k">for</span> <span class="n">ir</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records</span><span class="p">):</span>
+			<span class="nb">id</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;patient_id&quot;</span><span class="p">),</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;patient_name&quot;</span><span class="p">)</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%d</span><span class="s2">] Name: </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ir</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">id</span><span class="p">))</span>
+
+			<span class="k">for</span> <span class="n">ist</span><span class="p">,</span> <span class="n">study</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;studies&quot;</span><span class="p">)):</span>
+				<span class="nb">id</span><span class="p">,</span> <span class="n">desc</span> <span class="o">=</span> <span class="n">study</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">),</span> <span class="n">study</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;desc&quot;</span><span class="p">)</span>
+				<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="s2">&quot;[</span><span class="si">%d</span><span class="s2">] Id: </span><span class="si">%s</span><span class="s2"> Desc: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ist</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">desc</span><span class="p">))</span>
+
+				<span class="k">for</span> <span class="n">ise</span><span class="p">,</span> <span class="n">series</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">study</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;series&quot;</span><span class="p">)):</span>
+					<span class="n">number</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="n">imc</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;number&quot;</span><span class="p">),</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;desc&quot;</span><span class="p">),</span> <span class="n">series</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;images_count&quot;</span><span class="p">)</span>
+					<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="o">*</span><span class="mi">4</span> <span class="o">+</span> <span class="s2">&quot;[</span><span class="si">%d</span><span class="s2">] Number: </span><span class="si">%s</span><span class="s2"> Desc: </span><span class="si">%s</span><span class="s2"> Images: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ise</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="n">imc</span><span class="p">))</span></div></div>
+
+
+
+	
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">dicom3d  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Bitdefender LLC.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

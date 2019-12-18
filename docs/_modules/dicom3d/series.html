@@ -1,0 +1,483 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>dicom3d.series &#8212; dicom3d  documentation</title>
+    <link rel="stylesheet" href="../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">dicom3d  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for dicom3d.series</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pydicom</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.dataset</span> <span class="k">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">.data</span> <span class="k">import</span> <span class="n">walk_data</span>
+
+<div class="viewcode-block" id="Series"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Series">[docs]</a><span class="k">class</span> <span class="nc">Series</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Class responsible for managing a volumetric scan, comprised by a list of successive datasets</span>
+
+<span class="sd">	Note:</span>
+<span class="sd">		When constructed, this class performs the following operations </span>
+<span class="sd">			- sorts the given datasets by *ZLocation*</span>
+<span class="sd">			- wraps the datasets in **dicom3d.Dataset** class</span>
+<span class="sd">			- checks the series for spacial homogeneity</span>
+
+<span class="sd">	Attention:</span>
+<span class="sd">		Homogeneity check is required by this class to make sure the assumptions </span>
+<span class="sd">		it makes over the volumetric scan, are correct. These assumptions are related</span>
+<span class="sd">		to space contiguity between datasets and consistent density and size among</span>
+<span class="sd">		datasets </span>
+<span class="sd">		</span>
+<span class="sd">	Important: </span>
+<span class="sd">		A series is homogeneous if:</span>
+<span class="sd">			- all datasets are continuous on the Z axis (no gaps)</span>
+<span class="sd">			- each dataset has identical values for these attributes</span>
+<span class="sd">				- SliceThickness </span>
+<span class="sd">				- PixelSpacing </span>
+<span class="sd">				- Rows</span>
+<span class="sd">				- Columns</span>
+<span class="sd">				- ImagePositionPatient</span>
+<span class="sd">				- ImageOrientationPatient</span>
+
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">check_homogeneity</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+		<span class="c1"># wrao datasets in helper class</span>
+		<span class="n">wrapped_datasets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+
+		<span class="c1"># sort datasets by SliceLocation</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">datasets</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">wrapped_datasets</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">ds</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">ZLocation</span><span class="p">)</span>
+
+		<span class="c1"># fix index</span>
+		<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">):</span>
+			<span class="n">dataset</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">idx</span>
+
+		<span class="c1"># check for consistency in Z-location, thickness, density etc.</span>
+		<span class="k">if</span> <span class="n">check_homogeneity</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_verify_homogeneity</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_build_mapping</span><span class="p">()</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">homogeneous</span> <span class="o">=</span> <span class="kc">False</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="kc">None</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">pixel_data</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Series.from_directory"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Series.from_directory">[docs]</a>	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">from_directory</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s2">&quot;*.dcm&quot;</span><span class="p">,</span> <span class="n">check_homogeneity</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Constructs a series from a directory of DICOM files</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			path (str): path to the directory continaing the DICOM files</span>
+<span class="sd">			pattern (str, optional): Wildcard pattern of DIICOM files, default is &quot;\*.dcm&quot;</span>
+<span class="sd">			check_homogeneity (bool, optional): Homogeneity test, default is **True**</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			[Series]: a **dicom3d.Series** object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="c1"># enumerate all files with this pattern</span>
+		<span class="n">files</span> <span class="o">=</span> <span class="n">walk_data</span><span class="p">(</span>
+			<span class="n">path</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> 
+			<span class="n">search_files</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">search_dirs</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+		<span class="c1"># read the datasets</span>
+		<span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span> <span class="n">pydicom</span><span class="o">.</span><span class="n">dcmread</span><span class="p">(</span><span class="n">image_filename</span><span class="p">)</span>
+							 	 <span class="k">for</span> <span class="n">image_filename</span> <span class="ow">in</span> <span class="n">files</span> <span class="p">]</span>
+					
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;no datasets found to build series from directory &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+				<span class="n">path</span> <span class="p">))</span>
+
+		<span class="c1"># construct the series</span>
+		<span class="k">return</span> <span class="n">Series</span><span class="p">(</span>
+			<span class="n">datasets</span><span class="p">,</span>
+			<span class="n">check_homogeneity</span> <span class="o">=</span> <span class="n">check_homogeneity</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Series.from_dataset"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Series.from_dataset">[docs]</a>	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">from_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Constructs a series from a single dataset. Helpful if you want to build</span>
+<span class="sd">		section images from planar datasets</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			dataset (Dataset): planar DICOM dataset</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Series: resulted series object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">series</span> <span class="o">=</span> <span class="n">Series</span><span class="p">([</span><span class="n">dataset</span><span class="p">])</span>
+		<span class="n">series</span><span class="o">.</span><span class="n">homogeneous</span> <span class="o">=</span> <span class="kc">True</span>
+		<span class="k">return</span> <span class="n">series</span></div>
+
+<div class="viewcode-block" id="Series.fix_z_duplicates"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Series.fix_z_duplicates">[docs]</a>	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">fix_z_duplicates</span><span class="p">(</span><span class="n">datasets</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Attempts to curate a list of datasets that has datasets duplicated on the Z axis</span>
+<span class="sd">		</span>
+<span class="sd">		Args:s</span>
+<span class="sd">			datasets (list): list of pydicom.dataset.Dataset objects</span>
+
+<span class="sd">		Important:</span>
+<span class="sd">			This code is experimental and is used to fix some series that fail the</span>
+<span class="sd">			homogeneity test.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="c1"># construct a set of SliceLocations</span>
+		<span class="n">locations_set</span> <span class="o">=</span> <span class="p">{</span> <span class="n">ds</span><span class="o">.</span><span class="n">SliceLocation</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasets</span> <span class="p">}</span>
+
+		<span class="c1"># if the number of locations is lower than the number of datasets</span>
+		<span class="c1"># =&gt; dataset list has duplicated elements in regards of SliceLocation </span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">locations_set</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">):</span>
+
+			<span class="n">curated</span> <span class="o">=</span> <span class="p">[]</span>
+
+			<span class="c1"># eliminate those datasets with duplicated SliceLocation</span>
+			<span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
+
+				<span class="c1"># if in unique location list, add to curated</span>
+				<span class="c1"># if not, it&#39;s a duplicate dataset</span>
+				<span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">SliceLocation</span> <span class="ow">in</span> <span class="n">locations_set</span><span class="p">:</span>
+					<span class="n">curated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+					<span class="n">locations_set</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SliceLocation</span><span class="p">)</span>
+
+			<span class="k">return</span> <span class="n">curated</span>
+
+		<span class="c1"># the original list has no duplicates</span>
+		<span class="k">return</span> <span class="n">datasets</span></div>
+
+	<span class="k">def</span> <span class="nf">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datasets</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; wrap each dataset into the &#39;dataset&#39; class &quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="k">return</span> <span class="p">[]</span>
+
+		<span class="c1"># already wraped, re-wrap</span>
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">is</span> <span class="n">Dataset</span><span class="p">:</span>
+			<span class="k">return</span> <span class="p">[</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> 
+					<span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span> <span class="p">]</span>
+
+		<span class="k">return</span> <span class="p">[</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> 
+					<span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span> <span class="p">]</span>
+
+	<span class="k">def</span> <span class="nf">_build_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+		<span class="c1"># avoid using SliceThickness</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+			<span class="n">thick</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ZLocation</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ZLocation</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">thick</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">SliceThickness</span>
+
+		<span class="n">start_z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">ZLocation</span>
+		<span class="n">end_z</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last</span><span class="p">()</span><span class="o">.</span><span class="n">ZLocation</span> <span class="o">+</span> <span class="n">thick</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="p">(</span><span class="n">start_z</span><span class="p">,</span> <span class="n">end_z</span><span class="p">,</span> <span class="n">thick</span><span class="p">)</span>
+		<span class="k">return</span> <span class="kc">True</span>
+
+	<span class="k">def</span> <span class="nf">_ensure_homogeneity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">homogeneous</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span> 
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;series must be homogeneous to use this function&quot;</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">_verify_homogeneity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1.e-4</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			checks if the given series of datasets is continuous (i.e. each</span>
+<span class="sd">			dataset starts where the previous dataset ends) and also checks</span>
+<span class="sd">			if all datasets have the same thinkness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="c1"># single dataset series</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">homogeneous</span> <span class="o">=</span> <span class="kc">True</span>
+			<span class="k">return</span>
+
+		<span class="c1"># check continuity</span>
+		<span class="n">prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+		<span class="n">ref_thickness</span> <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">SliceThickness</span>
+		<span class="n">ref_distance</span>  <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">next</span><span class="p">()</span><span class="o">.</span><span class="n">ZLocation</span> <span class="o">-</span> <span class="n">prev</span><span class="o">.</span><span class="n">ZLocation</span>
+		<span class="n">ref_Rows</span>      <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">Rows</span>
+		<span class="n">ref_Columns</span>   <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">Columns</span> 
+		<span class="n">ref_imop</span>	  <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">ImageOrientationPatient</span>
+		<span class="n">ref_density</span>   <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">PixelSpacing</span>
+
+		<span class="k">if</span> <span class="n">ref_distance</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;homogeneity test failed: first datasets have the same Z location&quot;</span><span class="p">)</span>
+		
+		<span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+
+			<span class="c1"># check if a datasets ends where the other one begins</span>
+			<span class="n">diff</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">ZLocation</span> <span class="o">-</span> <span class="n">prev</span><span class="o">.</span><span class="n">ZLocation</span> <span class="o">-</span> <span class="n">ref_distance</span>
+			<span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tolerance</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;homogeneity test failed: series is not continuous on the Z axis&quot;</span><span class="p">)</span>
+
+			<span class="c1"># check if a dataset has different slice thickness</span>
+			<span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">SliceThickness</span> <span class="o">!=</span> <span class="n">ref_thickness</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;homogeneity test failed: series has datasets with variable thickness&quot;</span><span class="p">)</span>
+
+			<span class="c1"># check for same rows and columns</span>
+			<span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">Rows</span> <span class="o">!=</span> <span class="n">ref_Rows</span> <span class="ow">or</span> <span class="n">dataset</span><span class="o">.</span><span class="n">Columns</span> <span class="o">!=</span> <span class="n">ref_Columns</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;homogeneity test failed: series has datasets with variable Rows,Columns configuration&quot;</span><span class="p">)</span>
+
+			<span class="c1"># datasets must have same coordinate system</span>
+			<span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">ImageOrientationPatient</span> <span class="o">!=</span> <span class="n">ref_imop</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;homogeneity test failed: series has datasets with different orientation (ImageOrientationPatient)&quot;</span><span class="p">)</span> 
+
+			<span class="c1"># datasets must have same density</span>
+			<span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">PixelSpacing</span> <span class="o">!=</span> <span class="n">ref_density</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;homogeneity test failed: series has datasets with different density (PixelSpacing)&quot;</span><span class="p">)</span>
+
+			<span class="n">prev</span> <span class="o">=</span> <span class="n">dataset</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">homogeneous</span> <span class="o">=</span> <span class="kc">True</span>
+		<span class="k">return</span>
+
+<div class="viewcode-block" id="Series.cache"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Series.cache">[docs]</a>	<span class="k">def</span> <span class="nf">cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Builds a three-dimensional numpy array from all pixel data from datasets. </span>
+<span class="sd">		</span>
+<span class="sd">		Important:</span>
+<span class="sd">			Reserved for future use!</span>
+
+<span class="sd">		Returns:</span>
+<span class="sd">			numpy.array: numpy array of the pixel data</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixel_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixel_data</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">_ensure_homogeneity</span><span class="p">()</span>
+
+		<span class="n">dataset</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+		<span class="n">zd</span><span class="p">,</span> <span class="n">yd</span><span class="p">,</span> <span class="n">xd</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">),</span> <span class="n">dataset</span><span class="o">.</span><span class="n">Rows</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">Columns</span>
+		<span class="n">pixel_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">zd</span><span class="p">,</span> <span class="n">yd</span><span class="p">,</span> <span class="n">xd</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">long</span><span class="p">)</span>
+
+		<span class="c1"># populate</span>
+		<span class="k">for</span> <span class="n">zi</span><span class="p">,</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">):</span>
+			<span class="n">pixel_data</span><span class="p">[</span><span class="n">zi</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">pixel_array</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">pixel_data</span> <span class="o">=</span> <span class="n">pixel_data</span>
+		<span class="k">return</span> <span class="n">pixel_data</span></div>
+
+
+<div class="viewcode-block" id="Series.first"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Series.first">[docs]</a>	<span class="k">def</span> <span class="nf">first</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Retrives the first dataset from series. The first dataset is located at the bottom </span>
+<span class="sd">		of the Z segment, therefore it will have the lowest Z coordinate value.</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Dataset: a **dicom3d.Dataset** object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Series.last"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Series.last">[docs]</a>	<span class="k">def</span> <span class="nf">last</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Retrives the last dataset from series. The last dataset is located at the top </span>
+<span class="sd">		of the Z segment, therefore it will have the highest Z coordinate value.</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Dataset: a **dicom3d.Dataset** object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Series.middle"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Series.middle">[docs]</a>	<span class="k">def</span> <span class="nf">middle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Retrives the dataset from series that is on the middle of the Z segment. </span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Dataset: a **dicom3d.Dataset** object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Series.count"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Series.count">[docs]</a>	<span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns the number of datasets</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			int: legnth of datasets list </span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Series.z_bounds"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Series.z_bounds">[docs]</a>	<span class="k">def</span> <span class="nf">z_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns a tuple representing the world Z coordinates of the volumetric scan, </span>
+<span class="sd">		including the top dataset and its thickness.</span>
+
+<span class="sd">		Important:</span>
+<span class="sd">			If homogeneity test was disabled for this series, this function will raise</span>
+<span class="sd">			an exception</span>
+
+<span class="sd">		Returns:</span>
+<span class="sd">			tuple: a tuple of float values representing the Z bounds</span>
+<span class="sd">		</span>
+<span class="sd">		Examples:</span>
+<span class="sd">			&gt;&gt;&gt; z_start, z_end = series.z_bounds()</span>
+<span class="sd">			&gt;&gt;&gt; print(&quot;Series starts from %.1f to %.1f mm on the Z axis&quot; % (z_start, z_end) )</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">_ensure_homogeneity</span><span class="p">()</span>
+
+		<span class="n">start_z</span><span class="p">,</span> <span class="n">end_z</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span>
+		<span class="k">return</span> <span class="p">(</span><span class="n">start_z</span><span class="p">,</span> <span class="n">end_z</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Series.at_index"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Series.at_index">[docs]</a>	<span class="k">def</span> <span class="nf">at_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns the dataset at the corresponding index or None if index is out of bounds.</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			index (int): dataset index in series</span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			Dataset: the **dicom3d.Dataset** object at **index**  </span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">):</span>
+			<span class="k">return</span> <span class="kc">None</span> <span class="c1"># exceeds list</span>
+
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Series.at_z"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Series.at_z">[docs]</a>	<span class="k">def</span> <span class="nf">at_z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_loc</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns the dataset that intersects the given Z location in world coordinates</span>
+<span class="sd">		</span>
+<span class="sd">		Important:</span>
+<span class="sd">			If homogeneity test was disabled for this series, this function will raise</span>
+<span class="sd">			an exception</span>
+
+<span class="sd">		Args:</span>
+<span class="sd">			z_loc (float): value describing location on the Z axis</span>
+
+<span class="sd">		Returns:</span>
+<span class="sd">			Dataset: the corresponding **dicom3d.Dataset** object </span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_ensure_homogeneity</span><span class="p">()</span>
+
+		<span class="c1"># linear mapping -&gt; calculate index</span>
+		<span class="n">start_z</span><span class="p">,</span> <span class="n">end_z</span><span class="p">,</span> <span class="n">thick</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span>
+		<span class="k">if</span> <span class="n">z_loc</span> <span class="o">&gt;=</span> <span class="n">end_z</span> <span class="ow">or</span> <span class="n">z_loc</span> <span class="o">&lt;</span> <span class="n">start_z</span><span class="p">:</span> 
+			<span class="k">return</span> <span class="kc">None</span> <span class="c1"># exceeds Z segment</span>
+
+		<span class="n">idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">z_loc</span> <span class="o">-</span> <span class="n">start_z</span><span class="p">)</span> <span class="o">/</span> <span class="n">thick</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Series.at"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Series.at">[docs]</a>	<span class="k">def</span> <span class="nf">at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">where</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		This is a wrapper function for ease of use over **at_index** and</span>
+<span class="sd">		**at_z** functions.</span>
+
+<span class="sd">		Args:</span>
+<span class="sd">			where (int, float, tuple, Point): if **where** is an integer is treated like an index,</span>
+<span class="sd">				else is considered to be a Z location</span>
+
+<span class="sd">		Returns:</span>
+<span class="sd">			Dataset: the corresponding **dicom3d.Dataset** object </span>
+
+<span class="sd">		Examples:</span>
+<span class="sd">			 &gt;&gt;&gt; dataset = series.at(1.0) # gets dataset at 0.1 Z coordinate</span>
+<span class="sd">			 &gt;&gt;&gt; dataset = series.at(1)   # gets dataset at index 1</span>
+<span class="sd">			 &gt;&gt;&gt; dataset = series.at(Point(5,5,2)) # gets dataset at 2.0 Z coordinate</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">where</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">at_index</span><span class="p">(</span><span class="n">where</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">where</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">at_z</span><span class="p">(</span><span class="n">where</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">where</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">where</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">where</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Point</span><span class="p">:</span>
+			<span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="n">where</span>
+			<span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">at_z</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+			<span class="k">return</span> <span class="n">dataset</span> <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">intersects_xy</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span> <span class="k">else</span> <span class="kc">None</span>
+
+		<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid type for looking up dataset (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">where</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="Series.find_dataset"><a class="viewcode-back" href="../../api/dicom3d.html#dicom3d.Series.find_dataset">[docs]</a>	<span class="k">def</span> <span class="nf">find_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_loc</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Despite **Series.at_z** method, this one doesn&#39;t require homogenuity test to be ran</span>
+<span class="sd">		If will effectively search though the list to find the corresponding dataset, instead</span>
+<span class="sd">		of calculating the index based on Z-bounds and dataset thickness.</span>
+<span class="sd">		</span>
+<span class="sd">		Args:</span>
+<span class="sd">			z_loc (float):  value describing location on the Z axiss </span>
+<span class="sd">		</span>
+<span class="sd">		Returns:</span>
+<span class="sd">			int: index of the corresponding dataset or -1 if not found</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">z_loc</span> <span class="o">&gt;=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">ZLocation</span> <span class="ow">and</span> <span class="n">z_loc</span> <span class="o">&lt;</span> <span class="n">dataset</span><span class="o">.</span><span class="n">ZLocation</span> <span class="o">+</span> <span class="n">dataset</span><span class="o">.</span><span class="n">SliceThickness</span><span class="p">:</span>
+				<span class="k">return</span> <span class="n">idx</span>
+		<span class="k">return</span> <span class="o">-</span><span class="mi">1</span> </div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">dicom3d  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Bitdefender LLC.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>
