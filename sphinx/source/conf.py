@@ -17,10 +17,13 @@ sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'dicom3d'
-copyright = '2019, Bitdefender LLC'
-author = 'Alex Mircescu'
+# The master toctree document.
+source_suffix = '.rst'
+master_doc = 'index'
 
+project = 'dicom3d'
+copyright = '2020, Bitdefender LLC'
+author = 'Alex Mircescu'
 
 # -- General configuration ---------------------------------------------------
 
