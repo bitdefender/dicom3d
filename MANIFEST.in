@@ -1,0 +1,5 @@
+include dicom3d/examples/geometry/*.py
+include dicom3d/examples/section/*.py
+include dicom3d/examples/dicomdir/*.py
+include LICENSE
+include README_PKG.md
