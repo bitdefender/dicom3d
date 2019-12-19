@@ -329,12 +329,12 @@ datasets, as follows:
     # assuming you have a function returning sa pydicom dataset
     dataset = getMyDataset()
 
-	# construct a section from a single dataset
-	planar_section = d3d.Section.from_dataset(dataset)
+    # construct a section from a single dataset
+    planar_section = d3d.Section.from_dataset(dataset)
 
-	# get wrapped dicom3d.Dataset class
-	dataset = planar_section.series.first()
-	origin = dataset.center()
+    # get wrapped dicom3d.Dataset class
+    dataset = planar_section.series.first()
+    origin = dataset.center()
 
     # navigate through dataset
     x,y,z = dataset.to_mm(0,0)
