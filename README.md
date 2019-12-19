@@ -1,9 +1,14 @@
 About
 ========
 
-**dicom3d** is a comprehensive Python package for reconstructing arbitrary defined 3D sections from volumetric medical scans (CTs or RMNs), scale accurate and with a builtin pixel-to-world coordinate mapping system.
+**dicom3d** is a comprehensive Python package for reconstructing arbitrary defined 3D sections 
+from volumetric medical scans (CTs or RMNs), scale accurate and with a builtin pixel-to-world 
+coordinate mapping system.
 
-It comes preloaded with the necessary mathematical backend to manipulate space information from medical scans, and provides a mapping system that can transparently handle different imaging properties such as pixel density, dataset thickness, patient orientation, patient positioning, etc.
+It comes preloaded with the necessary mathematical backend to manipulate space information from 
+medical scans, and provides a mapping system that can transparently handle different imaging 
+properties such as pixel density, dataset thickness, patient orientation, patient positioning, 
+etc.
 
 Dependencies
 ------------
@@ -15,11 +20,6 @@ Installation
 From PyPi package repository:
 
     pip install dicom3d
-    
-API Docs
---------
-
-Full API documentation is available [here](https://github.com/bitdefender/dicom3d/docs/index.html)
 
 Quick start
 -----------
@@ -46,10 +46,11 @@ Some of the examples will require a volumetric scan to work with, stored in a fo
 multiple *.DCM* files. You can download many free CT or RMN scans from 
 [canerimagingarchive.net](https://nbia.cancerimagingarchive.net)
 
-When you have them, navigate to the folder you downloaded them and run **dicom3d.examples** utility. 
-The utility will look for those scans starting from the current working directory.
+When you have them, navigate to the folder you downloaded them and run **dicom3d.examples** 
+utility. The utility will look for those scans starting from the current working directory.
 
 For example, to run the **basic.py** from **dicom3d**:
+
 ```
 >$ cd dicom_data/test_files
 >$ python3 -m dicom3d.examples section/basic.py
@@ -189,10 +190,10 @@ def select_series_path():
 
 # retrieve a series sample, asuming your CT/RMN scans 
 # are located in the current working directory
-path  = select_series_path()
+path   = select_series_path()
 series = d3d.series.from_directory(path)
 
-# get scan centter
+# get scan center
 origin = series.middle().center()
 
 # build medical sections
@@ -207,8 +208,8 @@ section_sagittal = d3d.Section.from_plane(series, sagittal, origin)
 
 # size of the resulting image will be 256 by 256 pixels
 size = (256,256)
-img_axial   = section_axial.image(size)
-img_coronal = section_coronal.image(size)
+img_axial    = section_axial.image(size)
+img_coronal  = section_coronal.image(size)
 img_sagittal = section_sagittal.image(size)
 ```
 
@@ -216,7 +217,7 @@ That's it! We can now plot the **numpy** images using **matplotlib**.
 
 ### Dimensions
 
-Describing the size of a section in pixels has the disadvantage of not being "portable" across
+Defining the size of a section in pixels has the disadvantage of not being "portable" across
 different DICOM datasets, if their *PixelSpacing* varies from one to another. 
 
 For example, a section with 100x100 pixels can map to 100x100 millimeters if the DICOM has the 

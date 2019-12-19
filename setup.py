@@ -1,7 +1,13 @@
 import setuptools
-from .dicom3d import version
+import sys
+import os
 
-with open("README.md", "r") as fh:
+DICOM3D_PATH = os.path.abspath("./dicom3d")
+sys.path.append(DICOM3D_PATH)
+
+from dicom3d import version
+
+with open("README_PYPI.md", "r") as fh:
     _long_description_ = fh.read()
 
 _description_ = \
@@ -42,5 +48,5 @@ setuptools.setup(
     install_requires= [
         'pydicom', 'numpy'
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.4',
 )

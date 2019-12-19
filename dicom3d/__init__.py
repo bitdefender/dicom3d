@@ -15,7 +15,7 @@ __all__ = [
 	"version"
 ]
 
-version = "0.9.2"
+version = "0.9.5"
 
 from .dataset import *
 from .section import *
