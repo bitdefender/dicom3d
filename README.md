@@ -14,15 +14,20 @@ Dependencies
 ------------
 It relies on **pydicom** for loading DICOM medical images and **numpy** for array manipulation.
 
+Documentation
+-------------
+
+Documentation is available on [dicom3d.readthedocs.org](https://dicom3d.readthedocs.org).
+
 Installation
-------------
+=============
 
 From PyPi package repository:
 
     pip install dicom3d
 
 Quick start
------------
+===========
 
 A quick way of understanding **dicom3d** is to explore its built-in examples.
 
